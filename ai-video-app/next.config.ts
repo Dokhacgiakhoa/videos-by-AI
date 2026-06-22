@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    ignoreIssue: [
+      {
+        path: "**/node_modules/@esbuild/**",
+        title: "Unknown module type",
+      },
+    ],
+  },
+  serverExternalPackages: ["@remotion/bundler", "@remotion/renderer"],
 };
 
 export default nextConfig;

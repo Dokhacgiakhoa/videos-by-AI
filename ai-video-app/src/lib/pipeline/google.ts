@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { Storyboard, StoryboardSchema } from "../types";
+import { imagenAspectLabel, durationPlan, type AspectRatio, type DurationPlan } from "./aspect";
 
 /**
  * Tích hợp Google Gemini API (chạy CLOUD, KHÔNG dùng GPU local — an toàn cho máy đang yếu nguồn).
@@ -14,8 +15,14 @@ import { Storyboard, StoryboardSchema } from "../types";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
 
+let _clientKey: string | undefined;
+
+export function setGeminiClientKey(key: string | undefined) {
+  _clientKey = key;
+}
+
 function apiKey(): string {
-  const key = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY;
+  const key = _clientKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!key) {
     throw new Error("Thiếu GEMINI_API_KEY trong .env.local (lấy free tại https://aistudio.google.com/apikey).");
   }
@@ -23,7 +30,11 @@ function apiKey(): string {
 }
 
 /** Sinh kịch bản bằng Gemini, trả JSON theo StoryboardSchema. */
-export async function geminiGenerateStoryboard(topic: string, newsContext?: string): Promise<Storyboard> {
+export async function geminiGenerateStoryboard(
+  topic: string,
+  newsContext?: string,
+  plan: DurationPlan = durationPlan("short"),
+): Promise<Storyboard> {
   const model = process.env.GEMINI_TEXT_MODEL ?? "gemini-2.0-flash";
 
   const newsBlock = newsContext
@@ -39,7 +50,7 @@ Hãy tóm tắt những tin nổi bật nhất ở trên và phân tích ảnh h
 Hãy viết một kịch bản siêu lôi cuốn về chủ đề: "${topic}".
 ${newsBlock}
 Yêu cầu:
-1. Khoảng 4-6 cảnh, tổng 30-45 giây.
+1. Khoảng ${plan.sceneCount} cảnh; TỔNG voiceOver khoảng ${plan.wordBudget} từ tiếng Việt (~${Math.round(plan.aimSeconds / 60)} phút).
 2. Câu đầu là "Hook" cực mạnh. VoiceOver tiếng Việt tự nhiên.
 3. imagePrompt BẮT BUỘC bằng TIẾNG ANH, chi tiết (cinematic, photorealistic, 8k, dramatic lighting), KHÔNG có chữ trong ảnh, phong cách nhất quán.
 
@@ -79,7 +90,11 @@ Trả về JSON đúng cấu trúc:
  *  - "gemini-*"  -> endpoint :generateContent (ảnh trả qua inlineData)
  * Lưu ảnh vào public/assets/images và trả về đường dẫn public.
  */
-export async function googleGenerateImage(prompt: string, filename: string): Promise<string> {
+export async function googleGenerateImage(
+  prompt: string,
+  filename: string,
+  ar: AspectRatio = "9:16",
+): Promise<string> {
   const model = process.env.GEMINI_IMAGE_MODEL ?? "imagen-3.0-generate-002";
   const key = apiKey();
 
@@ -91,7 +106,7 @@ export async function googleGenerateImage(prompt: string, filename: string): Pro
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         instances: [{ prompt }],
-        parameters: { sampleCount: 1, aspectRatio: "9:16" },
+        parameters: { sampleCount: 1, aspectRatio: imagenAspectLabel(ar) },
       }),
     });
     if (!res.ok) {
@@ -105,7 +120,16 @@ export async function googleGenerateImage(prompt: string, filename: string): Pro
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: `${prompt}. Vertical 9:16 composition.` }] }],
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `${prompt}. ${ar === "16:9" ? "Horizontal 16:9 widescreen" : ar === "1:1" ? "Square 1:1" : "Vertical 9:16"} composition.`,
+              },
+            ],
+          },
+        ],
         generationConfig: { responseModalities: ["IMAGE"] },
       }),
     });

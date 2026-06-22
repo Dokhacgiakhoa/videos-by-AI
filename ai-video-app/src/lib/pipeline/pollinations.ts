@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { imageDims, type AspectRatio, type Dimensions } from "./aspect";
 
 /**
  * Sinh ảnh AI MIỄN PHÍ qua Pollinations.ai (chạy Flux trên server của họ — KHÔNG cần API key,
@@ -11,15 +12,21 @@ import path from "path";
  *
  * @param prompt Mô tả ảnh (tiếng Anh)
  * @param filename Tên file lưu (vd scene_1.png)
+ * @param dims Kích thước ảnh theo tỉ lệ (mặc định 9:16)
  * @returns đường dẫn public của ảnh
  */
-export async function pollinationsGenerateImage(prompt: string, filename: string): Promise<string> {
+export async function pollinationsGenerateImage(
+  prompt: string,
+  filename: string,
+  dims?: Dimensions | AspectRatio,
+): Promise<string> {
   const base = process.env.POLLINATIONS_BASE ?? "https://image.pollinations.ai";
   const model = process.env.POLLINATIONS_MODEL ?? "flux";
+  const { width, height } = typeof dims === "string" ? imageDims(dims) : dims ?? imageDims("9:16");
   const seed = Math.floor(Math.random() * 1_000_000_000);
   const url =
     `${base}/prompt/${encodeURIComponent(prompt)}` +
-    `?width=768&height=1344&nologo=true&model=${encodeURIComponent(model)}&seed=${seed}`;
+    `?width=${width}&height=${height}&nologo=true&model=${encodeURIComponent(model)}&seed=${seed}`;
 
   console.log(`Đang sinh ảnh (Pollinations/${model}) cho: "${prompt.substring(0, 50)}..."`);
 

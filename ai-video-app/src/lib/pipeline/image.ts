@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { imageDims, type AspectRatio, type Dimensions } from "./aspect";
 
 /**
  * Sinh ảnh bằng Flux.1-schnell chạy LOCAL trên ComfyUI (miễn phí, dùng GPU NVIDIA).
@@ -15,15 +16,20 @@ import path from "path";
  * @param filename Tên file lưu trữ (ví dụ: scene_1.png)
  * @returns Đường dẫn public tới file ảnh đã lưu
  */
-export async function generateAndSaveImage(prompt: string, filename: string): Promise<string> {
+export async function generateAndSaveImage(
+  prompt: string,
+  filename: string,
+  dims?: Dimensions | AspectRatio,
+): Promise<string> {
   const host = process.env.COMFYUI_HOST ?? "http://127.0.0.1:8188";
   const ckpt = process.env.COMFYUI_FLUX_CKPT ?? "flux1-schnell-fp8.safetensors";
   const seed = Math.floor(Math.random() * 1_000_000_000_000);
+  const { width, height } = typeof dims === "string" ? imageDims(dims) : dims ?? imageDims("9:16");
 
-  // Workflow ComfyUI dạng API cho Flux.1-schnell (định dạng dọc 9:16 cho Shorts/Reels)
+  // Workflow ComfyUI dạng API cho Flux.1-schnell (kích thước theo tỉ lệ chọn)
   const workflow: Record<string, unknown> = {
     "4": { class_type: "CheckpointLoaderSimple", inputs: { ckpt_name: ckpt } },
-    "5": { class_type: "EmptyLatentImage", inputs: { width: 768, height: 1344, batch_size: 1 } },
+    "5": { class_type: "EmptyLatentImage", inputs: { width, height, batch_size: 1 } },
     "6": { class_type: "CLIPTextEncode", inputs: { text: prompt, clip: ["4", 1] } },
     "7": { class_type: "CLIPTextEncode", inputs: { text: "", clip: ["4", 1] } },
     "3": {

@@ -30,7 +30,7 @@ function run(bin: string, args: string[], cwd?: string): Promise<string> {
 }
 
 /** Đo thời lượng (giây) của file media bằng ffprobe. */
-async function probeDuration(file: string): Promise<number> {
+export async function probeDuration(file: string): Promise<number> {
   const out = await run(FFPROBE, [
     "-v", "error",
     "-show_entries", "format=duration",
@@ -112,4 +112,17 @@ export async function assembleVideo(
   await run(FFMPEG, ["-y", "-f", "concat", "-safe", "0", "-i", "list.txt", "-c", "copy", outAbs], workDir);
 
   return `/assets/videos/${outName}`;
+}
+
+/**
+ * Nối nhiều file mp3 thành 1 file duy nhất (giữ đúng thứ tự).
+ * @returns đường dẫn tuyệt đối tới file output.
+ */
+export async function concatAudio(audioPaths: string[], outputPath: string): Promise<void> {
+  const dir = path.dirname(outputPath);
+  fs.mkdirSync(dir, { recursive: true });
+  const listPath = outputPath + ".list.txt";
+  fs.writeFileSync(listPath, audioPaths.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n", "utf-8");
+  await run(FFMPEG, ["-y", "-f", "concat", "-safe", "0", "-i", listPath, "-c", "copy", outputPath]);
+  fs.unlinkSync(listPath);
 }

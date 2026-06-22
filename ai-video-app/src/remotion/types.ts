@@ -53,4 +53,24 @@ export interface VideoProps {
   cards: Card[];
   /** Đường dẫn audio tương đối trong public/ (vd "assets/audio/x.mp3"), bỏ trống nếu không có. */
   audioSrc?: string;
+  /** Nhạc nền (đường dẫn public hoặc trong public/), volume thấp dưới giọng đọc. */
+  bgMusic?: string;
+  /** Kích thước khung (được calculateMetadata dùng để đổi tỉ lệ). */
+  width?: number;
+  height?: number;
+}
+
+/** Props cho 1 ảnh post tĩnh kiểu bài báo (render bằng renderStill). */
+export interface ArticlePostProps {
+  width: number;
+  height: number;
+  headline: string;
+  subheadline?: string;
+  source?: string;
+  date?: string;
+  /** URL ảnh nền (http... hoặc đường dẫn trong public/). */
+  imageSrc: string;
+  brandText: string;
+  eyebrow?: string;
+  accent?: Accent;
 }

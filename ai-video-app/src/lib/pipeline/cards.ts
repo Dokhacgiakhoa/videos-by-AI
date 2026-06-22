@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { durationPlan, type DurationPlan } from "./aspect";
 
 /**
  * Sinh nội dung video dạng "THẺ" (cho format motion-graphics AI91) bằng Gemini.
@@ -30,7 +31,7 @@ const SceneSchema = z.object({
 
 const CardScriptSchema = z.object({
   title: z.string(),
-  scenes: z.array(SceneSchema).min(3).max(6),
+  scenes: z.array(SceneSchema).min(3).max(20),
 });
 
 export type CardScene = z.infer<typeof SceneSchema>;
@@ -38,9 +39,14 @@ export type CardScript = z.infer<typeof CardScriptSchema>;
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
 
-export async function geminiGenerateCards(topic: string, newsContext?: string): Promise<CardScript> {
-  const key = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY;
-  if (!key) throw new Error("Thiếu GEMINI_API_KEY trong .env.local.");
+export async function geminiGenerateCards(
+  topic: string,
+  newsContext?: string,
+  geminiKey?: string,
+  plan: DurationPlan = durationPlan("short"),
+): Promise<CardScript> {
+  const key = geminiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!key) throw new Error("Cần Gemini API key cho format Card. Nhập key trên giao diện hoặc đặt GEMINI_API_KEY trong .env.local.");
   const model = process.env.GEMINI_TEXT_MODEL ?? "gemini-2.5-flash";
 
   const newsBlock = newsContext
@@ -50,16 +56,19 @@ ${newsContext}
 `
     : "";
 
+  const wordsPerScene = Math.round(plan.wordBudget / plan.sceneCount);
   const prompt = `Bạn là chuyên gia dựng video ngắn dạng motion-graphics "thẻ thông tin" (giống tech explainer).
 Chủ đề: "${topic}".
 ${newsBlock}
-Tạo 3-5 scene. Mỗi scene gồm "voiceOver" (lời đọc tiếng Việt tự nhiên, 1-2 câu, hấp dẫn) và "card" để hiển thị.
+Tạo CHÍNH XÁC khoảng ${plan.sceneCount} scene (tối thiểu ${Math.max(3, plan.sceneCount - 2)}, tối đa ${plan.sceneCount + 2}).
+QUAN TRỌNG VỀ THỜI LƯỢNG: TỔNG lời đọc (voiceOver của tất cả scene cộng lại) phải khoảng ${plan.wordBudget} TỪ tiếng Việt (mỗi scene ~${wordsPerScene} từ, tức 2-4 câu). Viết đủ dài, KHÔNG cụt ngủn — đây là video dài ~${Math.round(plan.aimSeconds / 60)} phút.
+Mỗi scene gồm "voiceOver" (lời đọc tiếng Việt tự nhiên, hấp dẫn, mạch lạc nối tiếp nhau) và "card" để hiển thị.
 Có 2 loại card:
 - "title": { type, label (NHÃN IN HOA ngắn), headline (mảng các đoạn {text, color}), description (1-2 câu), tags (2-3 {text,color}) }
   -> headline cắt thành nhiều đoạn, tô màu 1-2 đoạn QUAN TRỌNG. color ∈ blue|yellow|orange|green|white (mặc định white).
 - "list": { type, label, headline (1 dòng), items (2-4 {tag (NHÃN trái IN HOA), title (đậm ngắn), subtitle (mô tả ngắn)}) }
 Scene đầu nên là "title" làm mở màn (hook). Xen kẽ list cho phần liệt kê.
-Mọi chữ hiển thị NGẮN GỌN (tiêu đề ≤ 8 từ, subtitle ≤ 7 từ) để vừa khung dọc.
+LƯU Ý: chỉ có voiceOver được DÀI; mọi CHỮ HIỂN THỊ trên card vẫn NGẮN GỌN (tiêu đề ≤ 8 từ, subtitle ≤ 7 từ) để vừa khung hình.
 
 Trả về JSON thuần đúng cấu trúc:
 {"title":"...","scenes":[{"voiceOver":"...","card":{"type":"title","label":"...","headline":[{"text":"...","color":"orange"}],"description":"...","tags":[{"text":"...","color":"blue"}]}},{"voiceOver":"...","card":{"type":"list","label":"...","headline":"...","items":[{"tag":"...","title":"...","subtitle":"..."}]}}]}`;

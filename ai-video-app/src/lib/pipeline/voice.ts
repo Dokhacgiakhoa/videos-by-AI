@@ -21,9 +21,17 @@ export interface VoiceWord {
  * @param sceneId ID của cảnh (dùng để đặt tên file)
  * @returns Object chứa đường dẫn file audio, file timestamps và mảng word timings
  */
-export async function generateVoiceWithTimestamps(text: string, sceneId: string) {
+export interface VoiceOptions {
+  /** Tên giọng edge-tts, vd "vi-VN-HoaiMyNeural" (nữ) / "vi-VN-NamMinhNeural" (nam). */
+  voice?: string;
+  /** Tốc độ đọc, định dạng edge-tts vd "+0%", "-15%", "+20%". */
+  rate?: string;
+}
+
+export async function generateVoiceWithTimestamps(text: string, sceneId: string, vopts: VoiceOptions = {}) {
   const pythonBin = process.env.PYTHON_BIN ?? "python";
-  const voice = process.env.EDGE_TTS_VOICE ?? "vi-VN-HoaiMyNeural";
+  const voice = vopts.voice || process.env.EDGE_TTS_VOICE || "vi-VN-HoaiMyNeural";
+  const rate = vopts.rate || process.env.EDGE_TTS_RATE || "+0%";
 
   const audioDir = path.join(process.cwd(), "public", "assets", "audio");
   const dataDir = path.join(process.cwd(), "public", "assets", "data");
@@ -44,6 +52,7 @@ export async function generateVoiceWithTimestamps(text: string, sceneId: string)
         scriptPath,
         "--text", text,
         "--voice", voice,
+        "--rate", rate,
         "--out-audio", audioFilePath,
         "--out-json", timestampsFilePath,
       ],

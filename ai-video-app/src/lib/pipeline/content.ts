@@ -1,4 +1,5 @@
 import { Storyboard, StoryboardSchema } from '../types';
+import { durationPlan, type DurationPlan } from './aspect';
 
 /**
  * Sinh kịch bản video bằng LLM chạy LOCAL qua Ollama (miễn phí, không cần API key).
@@ -13,7 +14,11 @@ import { Storyboard, StoryboardSchema } from '../types';
  * @param topic Chủ đề của video
  * @returns Storyboard object
  */
-export async function generateStoryboard(topic: string, newsContext?: string): Promise<Storyboard> {
+export async function generateStoryboard(
+  topic: string,
+  newsContext?: string,
+  plan: DurationPlan = durationPlan('short'),
+): Promise<Storyboard> {
   const host = process.env.OLLAMA_HOST ?? 'http://127.0.0.1:11434';
   const model = process.env.OLLAMA_MODEL ?? 'qwen2.5:7b';
 
@@ -32,7 +37,7 @@ Hãy viết một kịch bản siêu lôi cuốn về chủ đề: "${topic}".
 ${newsBlock}
 
 Yêu cầu:
-1. Độ dài: Khoảng 4-6 cảnh (scenes). Tổng thời gian khoảng 30-45 giây.
+1. Độ dài: Khoảng ${plan.sceneCount} cảnh (scenes). TỔNG lời thoại (voiceOver) khoảng ${plan.wordBudget} từ tiếng Việt (~${Math.round(plan.aimSeconds / 60)} phút).
 2. Giọng điệu: Hấp dẫn, bí ẩn hoặc kịch tính (tuỳ chủ đề). Câu đầu tiên phải là "Hook" cực mạnh để giữ chân người xem.
 3. VoiceOver: Viết bằng tiếng Việt, ngôn từ tự nhiên, ngắt nghỉ hợp lý.
 4. ImagePrompt: BẮT BUỘC viết bằng TIẾNG ANH. Đây là prompt cho AI sinh ảnh (Flux), hãy miêu tả cực kỳ chi tiết về góc máy, ánh sáng, phong cách hình ảnh (ví dụ: cinematic, photorealistic, 8k resolution, dramatic lighting, highly detailed). KHÔNG CÓ CHỮ (no text) trong ảnh. Cần giữ phong cách nhất quán giữa các cảnh.

@@ -97,7 +97,30 @@ Nếu vẫn sập, hạ tiếp xuống 180W hoặc 150W (`nvidia-smi -pl 150`). 
 
 ### ⚠️ Lưu ý về nội dung "bản tin"
 qwen2.5 chạy **offline, không có internet** → nó **tự bịa** nội dung tin theo chủ đề, KHÔNG lấy tin thật.
-Muốn tin thật: cần thêm bước lấy dữ liệu (RSS/web search) đưa vào prompt — xem mục dưới.
+Muốn tin thật: bật "Dựa trên tin thật" trên UI (Google News RSS, không cần key).
+
+## 🆕 Tính năng V2
+
+Giao diện giờ có 2 loại sản phẩm + nhiều tuỳ chọn:
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| **Loại sản phẩm** | 🎬 **Video** (Card Motion + giọng đọc) hoặc 🖼️ **Ảnh post** (bộ ảnh bài báo tĩnh, có nút tải .zip) |
+| **Tỉ lệ khung hình** | 9:16 (dọc) · 1:1 (vuông) · 16:9 (ngang) — áp cho cả video lẫn ảnh |
+| **Thời lượng** (video) | Ngắn ~2 phút / Dài ~5 phút (đổi "ngân sách từ" của kịch bản) |
+| **Giọng đọc** | Nữ miền Bắc (HoaiMy) / Nam (NamMinh) + tốc độ chậm/thường/nhanh |
+| **Xem trước kịch bản** | Sinh kịch bản → **sửa lời đọc/tiêu đề** → mới Render (tránh chờ render dài rồi mới thấy sai) |
+| **Nhạc nền** | Thả 1 file `.mp3` vào `public/assets/music/` → bật checkbox "Nhạc nền" (trộn volume thấp dưới giọng) |
+| **Thư viện** | Mục "📚 Thư viện" lưu lại video/ảnh đã tạo — tải lại hoặc xoá (xoá cả file, đỡ đầy đĩa) |
+| **1 job/lần** | Chỉ chạy 1 job tại một thời điểm (chống quá tải GPU/CPU → chống BSOD) |
+
+> Mọi sản phẩm đều cần **Gemini API key** (nhập 1 lần trên UI, lưu trong trình duyệt). Lấy free tại https://aistudio.google.com/apikey
+
+### ⏱️ Lưu ý thời gian render
+Video dài (3–7 phút) render trên CPU có thể mất **10–30 phút**. App sẽ báo ETA. Mẹo: dùng "Xem trước kịch bản" để chốt nội dung trước, và chọn tỉ lệ/độ dài phù hợp.
+
+### 🖥️ Icon Desktop
+Chạy `scripts/make-ico.js` (đã chạy sẵn) tạo `public/ai91-logo.ico`, rồi `create-shortcut.ps1` gán icon AI91 cho shortcut Desktop.
 
 ## Còn có thể làm tiếp (tuỳ chọn)
 1. **Lấy tin thật**: thêm bước fetch RSS/Google News rồi nhồi vào prompt kịch bản (sẽ cần internet ở khâu này).

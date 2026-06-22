@@ -1,13 +1,53 @@
-# video output (nặng, không push)
-output/*.mp4
-output/*.mov
-output/*.webm
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# nhạc bản quyền (đừng commit lên public)
-assets/music/*
-!assets/music/.gitkeep
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# node / remotion (giai đoạn 2)
-node_modules/
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-*.log
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (bí mật) — nhưng giữ lại template .env.example
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# Claude Code (cấu hình & lock máy-local)
+.claude/settings.local.json
+.claude/*.lock
+
+# Media sinh ra bởi pipeline (ảnh/giọng/video/temp) — không commit
+/public/assets/images/
+/public/assets/audio/
+/public/assets/data/
+/public/assets/videos/
+/public/assets/work/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

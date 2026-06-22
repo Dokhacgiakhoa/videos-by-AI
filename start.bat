@@ -14,7 +14,7 @@ if errorlevel 1 (
 
 :: Khoi dong Next.js server
 echo [2/3] Khoi dong server...
-cd /d "%~dp0ai-video-app"
+cd /d "%~dp0"
 if not exist node_modules (
     echo   Cai dat dependencies lan dau...
     call npm install

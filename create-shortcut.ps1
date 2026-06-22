@@ -8,7 +8,7 @@ $Shortcut.TargetPath = "$PSScriptRoot\start.bat"
 $Shortcut.WorkingDirectory = $PSScriptRoot
 $Shortcut.Description = "Khoi dong AI Video Maker (local)"
 $Shortcut.WindowStyle = 1
-$IconPath = "$PSScriptRoot\ai-video-app\public\ai91-logo.ico"
+$IconPath = "$PSScriptRoot\public\ai91-logo.ico"
 if (Test-Path $IconPath) { $Shortcut.IconLocation = $IconPath }
 $Shortcut.Save()
 

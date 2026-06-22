@@ -1,0 +1,16 @@
+{
+  "date": "2026-06-22",
+  "items": [
+    {
+      "name": "FIRECRAWL",
+      "badges": ["MIT", "TypeScript", "API"],
+      "tag": "Crawl & cào mọi website thành <em>dữ liệu sạch cho LLM</em> — không cần sitemap.",
+      "stat": "96",
+      "statSuffix": "%",
+      "lab1": "phủ",
+      "lab2": "toàn web",
+      "cmd": "npx firecrawl-mcp",
+      "star": "12.3K"
+    }
+  ]
+}

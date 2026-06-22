@@ -1,0 +1,220 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIDev Repo — card template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#06080c; --panel:#0b0f16; --line:#1b2330;
+    --ink:#eef2f6; --mut:#69748a;
+    --hot:#ff5a1f; --hot2:#ff8a3d; --cy:#2fe6d6;
+    --disp:"Space Grotesk",system-ui,Arial,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"Courier New",monospace;
+    --body:"Inter",system-ui,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#000;color:var(--ink);min-height:100%;font-family:var(--body)}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:8px 0 14px;overflow:auto}
+
+  /* ----- STAGE: 1080x1920, scaled to fit ----- */
+  #wrap{position:relative;flex:0 0 auto}
+  #stage{
+    width:1080px;height:1920px;transform-origin:top left;
+    position:relative;overflow:hidden;background:var(--bg)}
+  #stage::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(900px 700px at 12% 88%, rgba(255,90,31,.20), transparent 60%),
+      radial-gradient(820px 640px at 90% 8%, rgba(47,230,214,.13), transparent 60%);}
+  .grid{position:absolute;inset:0;opacity:.5;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:90px 90px;
+    -webkit-mask-image:radial-gradient(120% 80% at 50% 30%,#000 35%,transparent 80%);
+            mask-image:radial-gradient(120% 80% at 50% 30%,#000 35%,transparent 80%);}
+  .vig{position:absolute;inset:0;box-shadow:inset 0 0 360px 90px rgba(0,0,0,.85);pointer-events:none}
+
+  .pad{position:absolute;inset:0;padding:96px 88px;display:flex;flex-direction:column;z-index:2}
+
+  .eye{display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--mono);font-size:30px;letter-spacing:.06em;color:var(--mut)}
+  .eye b{color:var(--ink)}
+  .pill-day{color:var(--bg);background:var(--hot);font-weight:700;
+    padding:9px 20px;border-radius:999px;font-size:25px;letter-spacing:.12em}
+
+  .badges{display:flex;gap:18px;flex-wrap:wrap;margin-top:60px}
+  .badge{font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:.04em;
+    padding:12px 24px;border:1.5px solid var(--line);border-radius:14px;color:var(--mut);
+    background:rgba(255,255,255,.015)}
+  .badge.hot{color:var(--hot2);border-color:rgba(255,90,31,.45)}
+  .badge.cy{color:var(--cy);border-color:rgba(47,230,214,.4)}
+
+  .name-wrap{margin-top:78px;overflow:hidden}
+  .name{font-family:var(--disp);font-weight:700;text-transform:uppercase;
+    font-size:210px;line-height:.9;letter-spacing:-.02em;color:var(--ink);word-break:break-word}
+  .tag{margin-top:34px;font-size:46px;line-height:1.28;color:var(--mut);max-width:880px;font-weight:500}
+  .tag em{color:var(--ink);font-style:normal;font-weight:600}
+
+  .spacer{flex:1;min-height:40px}
+
+  .stat{display:flex;align-items:flex-end;gap:30px;margin-bottom:70px}
+  .stat .num{font-family:var(--disp);font-weight:700;font-size:200px;line-height:.82;
+    color:var(--hot);text-shadow:0 0 60px rgba(255,90,31,.35)}
+  .stat .lab{font-family:var(--mono);font-size:40px;color:var(--mut);line-height:1.25;padding-bottom:20px}
+  .stat .lab b{color:var(--ink);display:block;font-weight:700}
+
+  .term{background:#070a0f;border:1.5px solid var(--line);border-radius:22px;padding:34px 38px}
+  .dots{display:flex;gap:14px;margin-bottom:26px}
+  .dots i{width:20px;height:20px;border-radius:50%;display:block}
+  .dots i:nth-child(1){background:#ff5f57}.dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+  .cmd{font-family:var(--mono);font-size:42px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden}
+  .cmd .pr{color:var(--cy);margin-right:14px}
+  .cur{display:inline-block;width:20px;height:46px;background:var(--hot);
+    transform:translateY(8px);animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;margin-top:40px;
+    font-family:var(--mono);font-size:34px;color:var(--mut)}
+  .foot .star{color:var(--hot2)}
+  .foot .h{color:var(--ink)}
+
+  /* Entrance: content is VISIBLE by default; hidden state lives only inside
+     keyframes and applies only while .play is on. If JS/anim fail, all shows. */
+  .play .eye   {animation:rise .6s .15s both}
+  .play .badge {animation:rise .55s both}
+  .play .name  {animation:clip 1s .6s cubic-bezier(.2,.9,.2,1) both}
+  .play .tag   {animation:rise .7s 1.15s both}
+  .play .stat  {animation:rise .7s 1.5s both}
+  .play .term  {animation:rise .7s 1.85s both}
+  .play .foot  {animation:rise .6s 2.1s both}
+  @keyframes rise{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+  @keyframes clip{from{transform:translateY(105%)}to{transform:translateY(0)}}
+
+  #bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;
+    margin-top:14px;font-family:var(--body);font-size:14px;color:#9aa6b8;max-width:92vw}
+  #bar button{font:inherit;font-weight:600;color:#06080c;background:#ff5a1f;border:0;
+    padding:10px 18px;border-radius:10px;cursor:pointer}
+  #bar button.alt{background:#1b2330;color:#cfd7e3}
+  #bar .note{color:#5b6577}
+  @media (prefers-reduced-motion:reduce){.play *{animation:none!important}}
+</style>
+
+<div id="wrap">
+  <div id="stage">
+    <div class="grid"></div>
+    <div class="pad">
+      <div class="eye"><span><b>aidev.repo</b> · daily</span><span class="pill-day">REPO OF THE DAY</span></div>
+      <div class="badges" id="badges"></div>
+      <div class="name-wrap"><div class="name" id="name">FIRECRAWL</div></div>
+      <div class="tag" id="tag"></div>
+      <div class="spacer"></div>
+      <div class="stat"><div class="num" id="num">0</div><div class="lab" id="lab"></div></div>
+      <div class="term">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="cmd"><span class="pr">$</span><span id="cmd"></span><span class="cur"></span></div>
+      </div>
+      <div class="foot"><span class="star" id="star">GitHub</span><span class="h">@aidev.repo</span></div>
+    </div>
+    <div class="vig"></div>
+  </div>
+</div>
+
+<div id="bar">
+  <button onclick="play()">▶ Replay</button>
+  <button class="alt" onclick="next()">↻ Mẫu khác</button>
+  <span class="note">Quay màn hình 1080×1920 · sửa dữ liệu trong mảng DATA</span>
+</div>
+
+<script>
+/* ====== SỬA Ở ĐÂY MỖI NGÀY ====== */
+var DATA = [
+  { name:"FIRECRAWL", badges:["MIT","TypeScript","API"],
+    tag:"Crawl & cào mọi website thành <em>dữ liệu sạch cho LLM</em> — không cần sitemap.",
+    stat:"96", statSuffix:"%", lab1:"phủ", lab2:"toàn web", cmd:"npx firecrawl-mcp", star:"12.3K" },
+  { name:"PUPPETEER", badges:["Apache-2.0","Headless","Node"],
+    tag:"Điều khiển Chrome bằng code — <em>screenshot, scrape, test tự động</em>.",
+    stat:"95", statSuffix:"K★", lab1:"sao", lab2:"trên GitHub", cmd:"npm i puppeteer", star:"95K" },
+  { name:"KRONOS", badges:["MIT","Foundation"],
+    tag:"Model nền dự báo chuỗi thời gian cho <em>45+ sàn tài chính</em>.",
+    stat:"45", statSuffix:"+", lab1:"sàn", lab2:"được hỗ trợ", cmd:"pip install kronos", star:"4.2K" },
+];
+/* ================================ */
+
+var idx=0;
+function $(s){return document.querySelector(s);}
+
+function scale(){
+  try{
+    var bar = document.getElementById('bar').offsetHeight || 60;
+    var availH = window.innerHeight - bar - 28;
+    var availW = window.innerWidth - 4;
+    var s = Math.min(availW/1080, availH/1920);
+    if(!isFinite(s) || s<=0) s = availW/1080;
+    var st=$("#stage"), wr=$("#wrap");
+    st.style.transform="scale("+s+")";
+    wr.style.width=(1080*s)+"px";
+    wr.style.height=(1920*s)+"px";
+  }catch(e){}
+}
+window.addEventListener("resize",scale);
+
+var timers=[];
+function clearTimers(){timers.forEach(function(t){clearTimeout(t);clearInterval(t);});timers=[];}
+
+function render(d){
+  $("#name").textContent=d.name;
+  $("#tag").innerHTML=d.tag;
+  $("#lab").innerHTML="<b>"+d.lab1+"</b>"+d.lab2;
+  $("#star").textContent=d.star+"★ GitHub";
+  $("#badges").innerHTML=d.badges.map(function(b,i){
+    var c = i===0?'hot':(i===1?'cy':'');
+    return '<span class="badge '+c+'">'+b+'</span>';
+  }).join("");
+  // visible final state by default (so it never disappears)
+  $("#num").textContent=d.stat+d.statSuffix;
+  $("#cmd").textContent=d.cmd;
+}
+
+function play(){
+  clearTimers();
+  var d=DATA[idx]; render(d);
+  var stage=$("#stage");
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion:reduce)").matches;
+  stage.classList.remove("play"); void stage.offsetWidth;
+  if(reduce){ return; }                 // show static final state
+  stage.classList.add("play");
+  Array.prototype.forEach.call(document.querySelectorAll(".badge"),function(b,i){
+    b.style.animationDelay=(0.35+i*0.12)+"s";
+  });
+  // count-up
+  $("#num").textContent="0"+d.statSuffix;
+  timers.push(setTimeout(function(){
+    var target=parseInt(d.stat,10)||0, dur=800, t0=performance.now();
+    (function tick(t){
+      var p=Math.min((t-t0)/dur,1);
+      $("#num").textContent=Math.round(target*(1-Math.pow(1-p,3)))+d.statSuffix;
+      if(p<1) requestAnimationFrame(tick); else $("#num").textContent=d.stat+d.statSuffix;
+    })(t0);
+  },1500));
+  // typing command
+  $("#cmd").textContent="";
+  timers.push(setTimeout(function(){
+    var i=0, txt=d.cmd;
+    var iv=setInterval(function(){
+      $("#cmd").textContent=txt.slice(0,++i);
+      if(i>=txt.length){clearInterval(iv);}
+    },55);
+    timers.push(iv);
+  },1850));
+}
+function next(){ idx=(idx+1)%DATA.length; play(); }
+
+window.play=play; window.next=next;
+scale();
+// run after fonts settle so layout is correct
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){scale();play();}); }
+else { scale(); play(); }
+setTimeout(scale,400);
+</script>

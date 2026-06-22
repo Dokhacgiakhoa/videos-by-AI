@@ -1,0 +1,13 @@
+# video output (nặng, không push)
+output/*.mp4
+output/*.mov
+output/*.webm
+
+# nhạc bản quyền (đừng commit lên public)
+assets/music/*
+!assets/music/.gitkeep
+
+# node / remotion (giai đoạn 2)
+node_modules/
+.DS_Store
+*.log

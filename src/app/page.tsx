@@ -158,7 +158,7 @@ export default function Home() {
     }
   }
 
-  async function generate(scriptOverride?: { cardScript?: CardScriptLite; imagePostScript?: ImagePostScriptLite }) {
+  async function generate(extra?: { cardScript?: CardScriptLite; imagePostScript?: ImagePostScriptLite; preset?: string }) {
     setRunning(true);
     setError("");
     setVideoUrl("");
@@ -174,7 +174,7 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...baseBody(), ...scriptOverride }),
+        body: JSON.stringify({ ...baseBody(), ...extra }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
@@ -429,13 +429,23 @@ export default function Home() {
                 </p>
               )}
 
-              <button
-                onClick={onPrimary}
-                disabled={!canRun}
-                className="w-full rounded-xl bg-gradient-to-r from-hot to-hot2 hover:opacity-90 py-3 text-sm font-display font-bold text-black transition-all shadow-lg shadow-hot/10 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer uppercase tracking-wider"
-              >
-                {running ? "Đang xử lý..." : preview ? "Soạn kịch bản →" : isVideo ? "Bắt đầu tạo Video" : "Bắt đầu tạo bộ ảnh"}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onPrimary}
+                  disabled={!canRun}
+                  className="flex-1 rounded-xl bg-gradient-to-r from-hot to-hot2 hover:opacity-90 py-3 text-sm font-display font-bold text-black transition-all shadow-lg shadow-hot/10 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer uppercase tracking-wider"
+                >
+                  {running ? "Đang xử lý..." : preview ? "Soạn kịch bản →" : isVideo ? "Bắt đầu tạo Video" : "Bắt đầu tạo bộ ảnh"}
+                </button>
+                <button
+                  onClick={() => generate({ preset: "demo-ai91" })}
+                  disabled={running}
+                  title="Tạo video giới thiệu AI91 Medimation với kịch bản có sẵn (~20 cảnh). Không cần nhập topic hay Gemini key."
+                  className="rounded-xl border border-cy/40 bg-cy/10 hover:bg-cy/20 px-4 py-3 text-sm font-display font-bold text-cy transition-all disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer whitespace-nowrap"
+                >
+                  🎬 Demo
+                </button>
+              </div>
             </section>
           </div>
 

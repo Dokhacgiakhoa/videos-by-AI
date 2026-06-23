@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { AbsoluteFill, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, staticFile, useVideoConfig } from "remotion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import type { Card } from "./types";
@@ -295,8 +295,9 @@ export const SlideRenderer: React.FC<{ slide: Card; activeIndex: number; localFr
   if (slide.layoutType === "outro") return (
     <div ref={containerRef} className="outro-stage absolute inset-0">
       <div className="outro-logo">
-        <div className="outro-logo-inner" />
+        <Img src={staticFile("AI91.jpg")} className="outro-logo-img" />
       </div>
+      <div className="outro-brand">AI91 Medimation</div>
       <div className="outro-slogan">{slide.outroSlogan}</div>
       <div className="outro-contact">{slide.outroContact}</div>
     </div>

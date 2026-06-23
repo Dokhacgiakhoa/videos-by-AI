@@ -344,10 +344,8 @@ export default function Home() {
                     onChange={(v) => update({ voice: v })}
                     disabled={running}
                     options={[
-                      { value: "en-US-GuyNeural", label: "Guy (Nam, Mỹ)" },
-                      { value: "en-US-JennyNeural", label: "Jenny (Nữ, Mỹ)" },
-                      { value: "en-GB-RyanNeural", label: "Ryan (Nam, Anh)" },
-                      { value: "en-AU-WilliamNeural", label: "William (Nam, Úc)" },
+                      { value: "en-US-GuyNeural", label: "Nam" },
+                      { value: "en-US-JennyNeural", label: "Nữ" },
                     ]}
                   />
                   <SegmentedControl<Rate>

@@ -1,6 +1,7 @@
-<p align="center">
+<div align="center">
+  <p>[🇻🇳 Đọc bằng Tiếng Việt (Read in Vietnamese)](README-vi.md)</p>
   <img src="public/AI91.jpg" alt="AI91 Logo" width="200" style="border-radius: 20px;" />
-</p>
+</div>
 
 # AI91 Medimation - Fully Automated Media Production
 

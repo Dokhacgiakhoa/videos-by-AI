@@ -33,7 +33,7 @@ export interface VoiceOptions {
 export async function generateVoiceWithTimestamps(text: string, sceneId: string, vopts: VoiceOptions = {}) {
   vopts.signal?.throwIfAborted();
   const pythonBin = process.env.PYTHON_BIN ?? "python";
-  const voice = vopts.voice || process.env.EDGE_TTS_VOICE || "vi-VN-HoaiMyNeural";
+  const voice = vopts.voice || process.env.EDGE_TTS_VOICE || "en-US-GuyNeural";
   const rate = vopts.rate || process.env.EDGE_TTS_RATE || "+0%";
 
   const audioDir = path.join(process.cwd(), "public", "assets", "audio");

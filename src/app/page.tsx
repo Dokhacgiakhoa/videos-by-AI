@@ -38,7 +38,7 @@ const DEFAULT_PREFS: Prefs = {
   type: "video",
   aspect: "9:16",
   duration: "short",
-  voice: "vi-VN-HoaiMyNeural",
+  voice: "en-US-GuyNeural",
   rate: "normal",
 };
 
@@ -344,8 +344,11 @@ export default function Home() {
                     onChange={(v) => update({ voice: v })}
                     disabled={running}
                     options={[
-                      { value: "vi-VN-HoaiMyNeural", label: "Nữ miền Bắc" },
-                      { value: "vi-VN-NamMinhNeural", label: "Nam" },
+                      { value: "en-US-GuyNeural", label: "Nam EN (Guy)" },
+                      { value: "en-US-JennyNeural", label: "Nữ EN (Jenny)" },
+                      { value: "en-GB-RyanNeural", label: "Nam EN-UK (Ryan)" },
+                      { value: "vi-VN-NamMinhNeural", label: "Nam VN" },
+                      { value: "vi-VN-HoaiMyNeural", label: "Nữ VN" },
                     ]}
                   />
                   <SegmentedControl<Rate>

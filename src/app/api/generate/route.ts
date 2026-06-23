@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   let useNews = false;
   let newsQuery = "";
   let geminiKey = "";
-  let voice = "vi-VN-HoaiMyNeural";
+  let voice = "en-US-GuyNeural";
   let rate = "+0%";
   let useMusic = false;
   let preset = "";
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     useNews = Boolean(body?.useNews);
     newsQuery = (body?.newsQuery ?? "").toString().trim();
     geminiKey = (body?.geminiKey ?? "").toString().trim();
-    if (typeof body?.voice === "string" && body.voice.startsWith("vi-VN-")) voice = body.voice;
+    if (typeof body?.voice === "string" && /^[a-z]{2}-[A-Z]{2}-\w+$/.test(body.voice)) voice = body.voice;
     if (typeof body?.rate === "string") rate = RATE_MAP[body.rate] ?? RATE_MAP.normal;
   } catch {
     return new Response(JSON.stringify({ error: "Body JSON không hợp lệ" }), { status: 400 });

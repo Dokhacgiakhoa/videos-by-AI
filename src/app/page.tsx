@@ -507,6 +507,7 @@ export default function Home() {
                     }}
                     controls
                     loop
+                    acknowledgeRemotionLicense
                     autoPlay
                   />
                 </div>

@@ -8,9 +8,10 @@ interface Props {
   status: string;
   log: string[];
   thumbs: string[];
+  onCancel?: () => void;
 }
 
-export function ProgressPanel({ running, title, status, log, thumbs }: Props) {
+export function ProgressPanel({ running, title, status, log, thumbs, onCancel }: Props) {
   const logRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     logRef.current?.scrollTo(0, logRef.current.scrollHeight);
@@ -31,9 +32,20 @@ export function ProgressPanel({ running, title, status, log, thumbs }: Props) {
           </span>
         </div>
         {running && (
-          <span className="text-[9px] font-mono text-cy animate-pulse uppercase tracking-wider font-semibold">
-            RUNNING
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-mono text-cy animate-pulse uppercase tracking-wider font-semibold">
+              RUNNING
+            </span>
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="rounded-md border border-red-900 px-2 py-0.5 text-[10px] font-mono font-semibold text-red-300 bg-red-950/30 hover:bg-red-900/50 transition-colors cursor-pointer"
+              >
+                ✕ Hủy
+              </button>
+            )}
+          </div>
         )}
       </div>
 

@@ -46,6 +46,7 @@ export interface PipelineOptions {
   cardScript?: CardScript; // kịch bản đã duyệt (bỏ qua bước sinh)
   imagePostScript?: ImagePostScript; // nội dung ảnh đã duyệt
   bgMusic?: string; // đường dẫn public nhạc nền (vd /assets/music/x.mp3)
+  signal?: AbortSignal; // tín hiệu hủy job (client ngắt / bấm "Hủy")
 }
 
 export type ProgressEvent =
@@ -179,10 +180,11 @@ export async function runCardPipeline(
     let totalWords = 0;
 
     for (let i = 0; i < cardScript.scenes.length; i++) {
+      opts.signal?.throwIfAborted();
       const scene = cardScript.scenes[i];
       const sceneKey = `${jobId}_scene_${i}`;
       emit({ type: "status", message: `Thẻ ${i + 1}/${cardScript.scenes.length}: đang sinh giọng đọc...` });
-      const voice = await generateVoiceWithTimestamps(scene.voiceOver, sceneKey, { voice: opts.voice, rate: opts.rate });
+      const voice = await generateVoiceWithTimestamps(scene.voiceOver, sceneKey, { voice: opts.voice, rate: opts.rate, signal: opts.signal });
       const absAudio = publicToAbs(voice.audioUrl);
       const dur = await probeDuration(absAudio);
       totalSec += dur;
@@ -209,17 +211,20 @@ export async function runCardPipeline(
       message: `Tổng giọng đọc ~${Math.round(totalSec)}s (mục tiêu ~${plan.aimSeconds}s, ${realWpm} từ/phút).`,
     });
 
+    opts.signal?.throwIfAborted();
     const mergedAudioAbs = path.join(workDir, "merged.mp3");
     emit({ type: "status", message: "Đang nối audio..." });
-    await concatAudio(audioPaths, mergedAudioAbs);
+    await concatAudio(audioPaths, mergedAudioAbs, opts.signal);
     const audioSrc = `assets/work/${jobId}/merged.mp3`;
 
+    opts.signal?.throwIfAborted();
     const videoUrl = await renderCardVideo({
       cards,
       audioSrc,
       bgMusic: opts.bgMusic,
       aspectRatio: ar,
       jobId,
+      signal: opts.signal,
       onProgress: (msg) => emit({ type: "status", message: msg }),
     });
 
@@ -267,6 +272,7 @@ export async function runImagePostPipeline(
   const slides: ArticleSlideInput[] = [];
   try {
     for (let i = 0; i < script.slides.length; i++) {
+      opts.signal?.throwIfAborted();
       const s = script.slides[i];
       emit({ type: "status", message: `Ảnh ${i + 1}/${script.slides.length}: đang sinh ảnh nền AI...` });
       try {
@@ -286,10 +292,12 @@ export async function runImagePostPipeline(
 
     if (slides.length === 0) throw new Error("Không sinh được ảnh nền nào.");
 
+    opts.signal?.throwIfAborted();
     emit({ type: "status", message: "Đang dựng ảnh post (ảnh + tiêu đề + logo)..." });
     const urls = await renderArticlePostBatch(slides, {
       aspectRatio: ar,
       jobId,
+      signal: opts.signal,
       onProgress: (msg) => emit({ type: "status", message: msg }),
     });
 

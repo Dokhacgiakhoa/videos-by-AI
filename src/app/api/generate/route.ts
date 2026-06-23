@@ -97,6 +97,7 @@ export async function POST(request: Request) {
     cardScript,
     imagePostScript,
     bgMusic: useMusic ? resolveBgMusic() : undefined,
+    signal: request.signal,
   };
 
   const encoder = new TextEncoder();
@@ -118,7 +119,12 @@ export async function POST(request: Request) {
           await runCardPipeline(topic, emit, opts);
         }
       } catch (err) {
-        emit({ type: "error", message: err instanceof Error ? err.message : String(err) });
+        const aborted = (err instanceof Error && err.name === "AbortError") || request.signal.aborted;
+        if (aborted) {
+          emit({ type: "status", message: "Đã hủy job." });
+        } else {
+          emit({ type: "error", message: err instanceof Error ? err.message : String(err) });
+        }
       } finally {
         release();
         controller.close();

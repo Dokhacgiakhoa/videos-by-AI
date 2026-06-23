@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SegmentedControl } from "./_components/SegmentedControl";
 import { GeminiKeyField } from "./_components/GeminiKeyField";
 import { ProgressPanel } from "./_components/ProgressPanel";
@@ -74,6 +74,7 @@ export default function Home() {
   const [libRefresh, setLibRefresh] = useState(0);
 
   const [running, setRunning] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
   const [status, setStatus] = useState("");
   const [log, setLog] = useState<string[]>([]);
   const [title, setTitle] = useState("");
@@ -167,11 +168,14 @@ export default function Home() {
     setLog([]);
     setStatus("Bắt đầu...");
 
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...baseBody(), ...scriptOverride }),
+        signal: controller.signal,
       });
       if (!res.ok || !res.body) {
         const t = await res.text().catch(() => "");
@@ -216,10 +220,19 @@ export default function Home() {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      if (err instanceof DOMException && err.name === "AbortError") {
+        pushLog("🛑 Đã hủy job.");
+      } else {
+        setError(err instanceof Error ? err.message : String(err));
+      }
     } finally {
       setRunning(false);
+      abortRef.current = null;
     }
+  }
+
+  function cancel() {
+    abortRef.current?.abort();
   }
 
   return (
@@ -514,7 +527,7 @@ export default function Home() {
             </h2>
 
             {/* Progress / Logs Panel */}
-            <ProgressPanel running={running} title={title} status={status} log={log} thumbs={thumbs} />
+            <ProgressPanel running={running} title={title} status={status} log={log} thumbs={thumbs} onCancel={cancel} />
 
             {/* Error Message */}
             {error && (

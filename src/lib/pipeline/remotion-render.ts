@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import { bundle } from "@remotion/bundler";
-import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
+import { renderMedia, renderStill, selectComposition, makeCancelSignal } from "@remotion/renderer";
 import type { Card, ArticlePostProps } from "../../remotion/types";
 import { videoDims, type AspectRatio } from "./aspect";
 
@@ -34,11 +34,12 @@ export interface RenderCardVideoOptions {
   brandText?: string;
   aspectRatio?: AspectRatio;
   jobId: string;
+  signal?: AbortSignal;
   onProgress?: (message: string) => void;
 }
 
 export async function renderCardVideo(opts: RenderCardVideoOptions): Promise<string> {
-  const { cards, audioSrc, bgMusic, brandText = "AI91", aspectRatio = "9:16", jobId, onProgress } = opts;
+  const { cards, audioSrc, bgMusic, brandText = "AI91", aspectRatio = "9:16", jobId, signal, onProgress } = opts;
 
   const videosDir = path.join(process.cwd(), "public", "assets", "videos");
   fs.mkdirSync(videosDir, { recursive: true });
@@ -62,20 +63,32 @@ export async function renderCardVideo(opts: RenderCardVideoOptions): Promise<str
   }
   onProgress?.(`Đang render video ${width}x${height} (${composition.durationInFrames} frames)...`);
 
-  await renderMedia({
-    composition,
-    serveUrl: bundleLocation,
-    codec: "h264",
-    outputLocation,
-    inputProps,
-    concurrency: renderConcurrency(),
-    x264Preset: "veryfast",
-    crf: 23,
-    onProgress: ({ progress }) => {
-      const pct = Math.round(progress * 100);
-      if (pct % 10 === 0) onProgress?.(`Render: ${pct}%`);
-    },
-  });
+  const { cancelSignal, cancel } = makeCancelSignal();
+  const onAbort = () => cancel();
+  if (signal) {
+    if (signal.aborted) cancel();
+    else signal.addEventListener("abort", onAbort, { once: true });
+  }
+
+  try {
+    await renderMedia({
+      composition,
+      serveUrl: bundleLocation,
+      codec: "h264",
+      outputLocation,
+      inputProps,
+      concurrency: renderConcurrency(),
+      x264Preset: "veryfast",
+      crf: 23,
+      cancelSignal,
+      onProgress: ({ progress }) => {
+        const pct = Math.round(progress * 100);
+        if (pct % 10 === 0) onProgress?.(`Render: ${pct}%`);
+      },
+    });
+  } finally {
+    signal?.removeEventListener("abort", onAbort);
+  }
 
   return `/assets/videos/${jobId}.mp4`;
 }
@@ -95,9 +108,9 @@ export interface ArticleSlideInput {
  */
 export async function renderArticlePostBatch(
   slides: ArticleSlideInput[],
-  opts: { aspectRatio?: AspectRatio; jobId: string; brandText?: string; onProgress?: (m: string) => void },
+  opts: { aspectRatio?: AspectRatio; jobId: string; brandText?: string; signal?: AbortSignal; onProgress?: (m: string) => void },
 ): Promise<string[]> {
-  const { aspectRatio = "9:16", jobId, brandText = "AI91", onProgress } = opts;
+  const { aspectRatio = "9:16", jobId, brandText = "AI91", signal, onProgress } = opts;
   const imagesDir = path.join(process.cwd(), "public", "assets", "images");
   fs.mkdirSync(imagesDir, { recursive: true });
 
@@ -106,6 +119,7 @@ export async function renderArticlePostBatch(
 
   const outUrls: string[] = [];
   for (let i = 0; i < slides.length; i++) {
+    signal?.throwIfAborted();
     const s = slides[i];
     onProgress?.(`Đang dựng ảnh post ${i + 1}/${slides.length}...`);
     const props: Record<string, unknown> = {
@@ -120,14 +134,25 @@ export async function renderArticlePostBatch(
     const composition = await selectComposition({ serveUrl: bundleLocation, id: "ArticlePost", inputProps: props });
     const outName = `${jobId}_post_${i}.png`;
     const outAbs = path.join(imagesDir, outName);
-    await renderStill({
-      composition,
-      serveUrl: bundleLocation,
-      output: outAbs,
-      inputProps: props,
-      imageFormat: "png",
-      overwrite: true,
-    });
+    const { cancelSignal, cancel } = makeCancelSignal();
+    const onAbort = () => cancel();
+    if (signal) {
+      if (signal.aborted) cancel();
+      else signal.addEventListener("abort", onAbort, { once: true });
+    }
+    try {
+      await renderStill({
+        composition,
+        serveUrl: bundleLocation,
+        output: outAbs,
+        inputProps: props,
+        imageFormat: "png",
+        overwrite: true,
+        cancelSignal,
+      });
+    } finally {
+      signal?.removeEventListener("abort", onAbort);
+    }
     outUrls.push(`/assets/images/${outName}`);
   }
   return outUrls;

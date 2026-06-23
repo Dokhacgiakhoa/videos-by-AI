@@ -13,19 +13,26 @@ export interface AssembleScene {
   words: VoiceWord[]; // timestamp để làm phụ đề
 }
 
-function run(bin: string, args: string[], cwd?: string): Promise<string> {
+function run(bin: string, args: string[], cwd?: string, signal?: AbortSignal): Promise<string> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) return reject(new DOMException("Aborted", "AbortError"));
     const proc = spawn(bin, args, { cwd });
     let stderr = "";
     let stdout = "";
+    const onAbort = () => {
+      proc.kill();
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
     proc.stdout.on("data", (d) => (stdout += d.toString()));
     proc.stderr.on("data", (d) => (stderr += d.toString()));
     proc.on("error", (err) =>
       reject(new Error(`Không chạy được "${bin}" (đã cài FFmpeg và có trong PATH chưa?): ${err.message}`)),
     );
-    proc.on("close", (code) =>
-      code === 0 ? resolve(stdout || stderr) : reject(new Error(`${bin} lỗi (mã ${code}):\n${stderr.slice(-1500)}`)),
-    );
+    proc.on("close", (code) => {
+      signal?.removeEventListener("abort", onAbort);
+      code === 0 ? resolve(stdout || stderr) : reject(new Error(`${bin} lỗi (mã ${code}):\n${stderr.slice(-1500)}`));
+    });
   });
 }
 
@@ -118,11 +125,11 @@ export async function assembleVideo(
  * Nối nhiều file mp3 thành 1 file duy nhất (giữ đúng thứ tự).
  * @returns đường dẫn tuyệt đối tới file output.
  */
-export async function concatAudio(audioPaths: string[], outputPath: string): Promise<void> {
+export async function concatAudio(audioPaths: string[], outputPath: string, signal?: AbortSignal): Promise<void> {
   const dir = path.dirname(outputPath);
   fs.mkdirSync(dir, { recursive: true });
   const listPath = outputPath + ".list.txt";
   fs.writeFileSync(listPath, audioPaths.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n", "utf-8");
-  await run(FFMPEG, ["-y", "-f", "concat", "-safe", "0", "-i", listPath, "-c", "copy", outputPath]);
+  await run(FFMPEG, ["-y", "-f", "concat", "-safe", "0", "-i", listPath, "-c", "copy", outputPath], undefined, signal);
   fs.unlinkSync(listPath);
 }

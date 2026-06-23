@@ -107,16 +107,27 @@ export interface Card {
 }
 
 
+export interface BrandPalette {
+  primary: string;   // → --hot
+  secondary: string; // → --cy
+  accent: string;    // → --hot2
+  bg: string;        // → --bg
+  text: string;      // → --ink
+}
+
+export interface BrandConfig {
+  logoUrl: string;
+  palette: BrandPalette;
+}
+
 export interface VideoProps {
   brandText: string;
   cards: Card[];
-  /** Đường dẫn audio tương đối trong public/ (vd "assets/audio/x.mp3"), bỏ trống nếu không có. */
   audioSrc?: string;
-  /** Nhạc nền (đường dẫn public hoặc trong public/), volume thấp dưới giọng đọc. */
   bgMusic?: string;
-  /** Kích thước khung (được calculateMetadata dùng để đổi tỉ lệ). */
   width?: number;
   height?: number;
+  brand?: BrandConfig;
 }
 
 /** Props cho 1 ảnh post tĩnh kiểu bài báo (render bằng renderStill). */

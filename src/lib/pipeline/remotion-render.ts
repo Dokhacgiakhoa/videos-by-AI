@@ -35,18 +35,19 @@ export interface RenderCardVideoOptions {
   aspectRatio?: AspectRatio;
   jobId: string;
   signal?: AbortSignal;
+  brand?: { logoUrl: string; palette: Record<string, string> };
   onProgress?: (message: string) => void;
 }
 
 export async function renderCardVideo(opts: RenderCardVideoOptions): Promise<string> {
-  const { cards, audioSrc, bgMusic, brandText = "AI91", aspectRatio = "9:16", jobId, signal, onProgress } = opts;
+  const { cards, audioSrc, bgMusic, brandText = "AI91", aspectRatio = "9:16", jobId, signal, brand, onProgress } = opts;
 
   const videosDir = path.join(process.cwd(), "public", "assets", "videos");
   fs.mkdirSync(videosDir, { recursive: true });
   const outputLocation = path.join(videosDir, `${jobId}.mp4`);
 
   const { width, height } = videoDims(aspectRatio);
-  const inputProps: Record<string, unknown> = { brandText, cards, audioSrc, bgMusic, width, height };
+  const inputProps: Record<string, unknown> = { brandText, cards, audioSrc, bgMusic, width, height, brand };
 
   const bundleLocation = await getBundle(onProgress);
 

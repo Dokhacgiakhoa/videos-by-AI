@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SegmentedControl } from "./_components/SegmentedControl";
 import { GeminiKeyField } from "./_components/GeminiKeyField";
+import { BrandUploader, type BrandData } from "./_components/BrandUploader";
 import { ProgressPanel } from "./_components/ProgressPanel";
 import { VideoResult } from "./_components/VideoResult";
 import { ImageGallery } from "./_components/ImageGallery";
@@ -74,6 +75,7 @@ export default function Home() {
   const [libRefresh, setLibRefresh] = useState(0);
 
   const [running, setRunning] = useState(false);
+  const [brand, setBrand] = useState<BrandData | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [status, setStatus] = useState("");
   const [log, setLog] = useState<string[]>([]);
@@ -123,6 +125,7 @@ export default function Home() {
     voice: prefs.voice,
     rate: prefs.rate,
     music: music && musicAvailable,
+    brand: brand ?? undefined,
   });
 
   async function onPrimary() {
@@ -289,6 +292,7 @@ export default function Home() {
             
             {/* Gemini API Key */}
             <GeminiKeyField value={prefs.geminiKey} onChange={(v) => update({ geminiKey: v })} />
+            <BrandUploader onChange={setBrand} />
 
             {/* Parameter Config Form */}
             <section className="flex flex-col gap-5 rounded-2xl border border-line bg-[#0b0f16]/60 backdrop-blur-md p-5 shadow-xl relative overflow-hidden">

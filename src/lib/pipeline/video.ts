@@ -55,6 +55,7 @@ export interface PipelineOptions {
   bgMusic?: string; // đường dẫn public nhạc nền (vd /assets/music/x.mp3)
   signal?: AbortSignal; // tín hiệu hủy job (client ngắt / bấm "Hủy")
   preset?: string; // tên preset (vd "demo-ai91") — load kịch bản từ public/presets/
+  brand?: { logoUrl: string; palette: { primary: string; secondary: string; accent: string; bg: string; text: string } };
 }
 
 export type ProgressEvent =
@@ -236,6 +237,7 @@ export async function runCardPipeline(
       aspectRatio: ar,
       jobId,
       signal: opts.signal,
+      brand: opts.brand,
       onProgress: (msg) => emit({ type: "status", message: msg }),
     });
 

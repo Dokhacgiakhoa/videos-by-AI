@@ -10,6 +10,15 @@ import {
 import { isAspectRatio, isDuration, type AspectRatio, type Duration } from "@/lib/pipeline/aspect";
 import { tryAcquire, release, currentJobLabel } from "@/lib/pipeline/lock";
 
+/** Đọc brand.json nếu tồn tại (logo + palette đã phân tích). */
+function loadBrandJson(): PipelineOptions["brand"] {
+  try {
+    const p = path.join(process.cwd(), "public", "assets", "brand", "brand.json");
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf-8"));
+  } catch { /* ignore */ }
+  return undefined;
+}
+
 /** Tìm track nhạc nền đầu tiên trong public/assets/music. */
 function resolveBgMusic(): string | undefined {
   try {
@@ -47,11 +56,13 @@ export async function POST(request: Request) {
   let preset = "";
   let cardScript: PipelineOptions["cardScript"];
   let imagePostScript: PipelineOptions["imagePostScript"];
+  let brandFromBody: PipelineOptions["brand"];
 
   try {
     const body = await request.json();
     useMusic = Boolean(body?.music);
     preset = (body?.preset ?? "").toString().trim();
+    if (body?.brand && typeof body.brand === "object") brandFromBody = body.brand as PipelineOptions["brand"];
     if (body?.cardScript && typeof body.cardScript === "object") cardScript = body.cardScript;
     if (body?.imagePostScript && typeof body.imagePostScript === "object") imagePostScript = body.imagePostScript;
     topic = (body?.topic ?? "").toString().trim();
@@ -101,6 +112,7 @@ export async function POST(request: Request) {
     bgMusic: useMusic ? resolveBgMusic() : undefined,
     signal: request.signal,
     preset: preset || undefined,
+    brand: brandFromBody ?? loadBrandJson(),
   };
 
   const encoder = new TextEncoder();

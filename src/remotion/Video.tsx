@@ -79,15 +79,25 @@ const SceneComponent: React.FC<{ card: Card; index: number }> = ({ card, index }
   );
 };
 
-export const Ai91Video: React.FC<VideoProps> = ({ brandText, cards, audioSrc, bgMusic }) => {
+export const Ai91Video: React.FC<VideoProps> = ({ brandText, cards, audioSrc, bgMusic, brand }) => {
   const offsets = cards.reduce<number[]>((acc, _card, i) => {
     acc.push(i === 0 ? 0 : acc[i - 1] + cards[i - 1].durationInFrames);
     return acc;
   }, []);
 
+  const brandVars: React.CSSProperties = brand?.palette
+    ? {
+        "--hot": brand.palette.primary,
+        "--hot2": brand.palette.accent,
+        "--cy": brand.palette.secondary,
+        "--bg": brand.palette.bg,
+        "--ink": brand.palette.text,
+      } as React.CSSProperties
+    : {};
+
   return (
     <AbsoluteFill
-      style={{ backgroundColor: "#000" }}
+      style={{ backgroundColor: brand?.palette?.bg ?? "#000", ...brandVars }}
       className="dev-repo-card-stage overflow-hidden select-none"
     >
       {cards.map((card, i) => {

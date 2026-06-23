@@ -265,44 +265,49 @@ export async function runImagePostPipeline(
 
   // Sinh ảnh nền tuần tự (nhẹ tải GPU); lỗi 1 ảnh không giết cả bộ.
   const slides: ArticleSlideInput[] = [];
-  for (let i = 0; i < script.slides.length; i++) {
-    const s = script.slides[i];
-    emit({ type: "status", message: `Ảnh ${i + 1}/${script.slides.length}: đang sinh ảnh nền AI...` });
-    try {
-      const bgUrl = await makeImage(s.imagePrompt, `${jobId}_bg_${i}.png`, ar);
-      slides.push({
-        headline: s.headline,
-        subheadline: s.subheadline,
-        source: s.source,
-        date: today,
-        imageSrc: bgUrl,
-        eyebrow: i === 0 ? "TIÊU ĐIỂM" : undefined,
-      });
-    } catch (err) {
-      emit({ type: "status", message: `Bỏ qua ảnh ${i + 1} (lỗi sinh nền: ${err instanceof Error ? err.message : err}).` });
+  try {
+    for (let i = 0; i < script.slides.length; i++) {
+      const s = script.slides[i];
+      emit({ type: "status", message: `Ảnh ${i + 1}/${script.slides.length}: đang sinh ảnh nền AI...` });
+      try {
+        const bgUrl = await makeImage(s.imagePrompt, `${jobId}_bg_${i}.png`, ar);
+        slides.push({
+          headline: s.headline,
+          subheadline: s.subheadline,
+          source: s.source,
+          date: today,
+          imageSrc: bgUrl,
+          eyebrow: i === 0 ? "TIÊU ĐIỂM" : undefined,
+        });
+      } catch (err) {
+        emit({ type: "status", message: `Bỏ qua ảnh ${i + 1} (lỗi sinh nền: ${err instanceof Error ? err.message : err}).` });
+      }
     }
+
+    if (slides.length === 0) throw new Error("Không sinh được ảnh nền nào.");
+
+    emit({ type: "status", message: "Đang dựng ảnh post (ảnh + tiêu đề + logo)..." });
+    const urls = await renderArticlePostBatch(slides, {
+      aspectRatio: ar,
+      jobId,
+      onProgress: (msg) => emit({ type: "status", message: msg }),
+    });
+
+    urls.forEach((url, i) => emit({ type: "image", index: i + 1, total: urls.length, url, headline: slides[i]?.headline }));
+
+    recordJob({
+      id: jobId,
+      type: "imagepost",
+      title: script.title,
+      aspectRatio: ar,
+      createdAt: new Date().toISOString(),
+      images: urls,
+      thumb: urls[0],
+    });
+    emit({ type: "done", images: urls });
+    return { images: urls };
+  } finally {
+    // Dọn ảnh nền trung gian (_bg_*) — đã ghép vào ảnh post, không cần giữ (chống rò đĩa).
+    for (const s of slides) safeRm(publicToAbs(s.imageSrc));
   }
-
-  if (slides.length === 0) throw new Error("Không sinh được ảnh nền nào.");
-
-  emit({ type: "status", message: "Đang dựng ảnh post (ảnh + tiêu đề + logo)..." });
-  const urls = await renderArticlePostBatch(slides, {
-    aspectRatio: ar,
-    jobId,
-    onProgress: (msg) => emit({ type: "status", message: msg }),
-  });
-
-  urls.forEach((url, i) => emit({ type: "image", index: i + 1, total: urls.length, url, headline: slides[i]?.headline }));
-
-  recordJob({
-    id: jobId,
-    type: "imagepost",
-    title: script.title,
-    aspectRatio: ar,
-    createdAt: new Date().toISOString(),
-    images: urls,
-    thumb: urls[0],
-  });
-  emit({ type: "done", images: urls });
-  return { images: urls };
 }

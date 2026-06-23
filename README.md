@@ -1,101 +1,119 @@
-[🇻🇳 Tiếng Việt (Dành cho người dùng thường)](README.md) | [🇺🇸 English (For Developers)](README-en.md)
-
 <p align="center">
   <img src="public/AI91.jpg" alt="AI91 Logo" width="200" style="border-radius: 20px;" />
 </p>
 
-# AI91 Medimation - Tự Động Hoá Sản Xuất Media
+# AI91 Medimation - Fully Automated Media Production
 
-Một hệ thống tự động hoá hoàn toàn quy trình sản xuất **Video ngắn (Shorts/Reels)** và **Bài viết dạng ảnh (Carousel Posts)** dành cho mạng xã hội, sử dụng sức mạnh của các mô hình AI tiên tiến nhất (LLM, Text-to-Speech, Text-to-Image, và Headless Video Rendering). 
+An end-to-end automated system for producing **Short-form Videos (Shorts/Reels)** and **Social Media Image Carousels**, powered by the latest AI models (LLMs, Text-to-Speech, Text-to-Image, and Headless Video Rendering).
 
-**Tác giả:** [AI91 / Dokhacgiakhoa](https://github.com/Dokhacgiakhoa)  
-**Bản quyền:** MIT License (Hoàn toàn miễn phí mã nguồn mở)
-
----
-
-## 🌟 Tính Năng Cốt Lõi
-
-Hệ thống cho phép bạn chỉ cần nhập **1 câu Promt (Ý tưởng)** và nhấn nút, AI sẽ lo toàn bộ từ A-Z:
-1. **Lên kịch bản (Scripting):** Viết lời dẫn, chia nội dung thành các thẻ đồ hoạ (Card).
-2. **Thu âm (Voice-over):** Đọc giọng AI tiếng Việt tự nhiên và trích xuất dấu thời gian (timestamps) cho từng chữ (Karaoke).
-3. **Sinh ảnh minh hoạ (Image Gen):** Tự động prompt và sinh các bức ảnh minh hoạ cực nét cho từng ngữ cảnh.
-4. **Render Video / Ảnh:** Dựng các thẻ đồ hoạ với hiệu ứng chuyển động mượt mà (GSAP), tự chèn nhạc nền, khớp lời đọc với phụ đề, sau đó xuất ra file `.mp4` 1080p@30fps (hoặc bộ ảnh `.png`).
-
-Tất cả đều chạy **100% tự động** qua một giao diện Dashboard siêu đẹp. 
+**Author:** [AI91 / Dokhacgiakhoa](https://github.com/Dokhacgiakhoa)  
+**License:** MIT License (Open-source)
 
 ---
 
-## 🛠 Ngăn Xếp Công Nghệ (Tech Stack)
+## 🌟 Core Features
 
-Dự án này là sự kết hợp của những công nghệ hàng đầu:
-- **Giao diện (Frontend):** Next.js 16 (App Router), React 19, Tailwind CSS.
-- **Trình dựng Video (Rendering Engine):** Remotion (React-based renderer), Puppeteer Chromium.
-- **Đồ hoạ chuyển động (Motion):** GSAP (GreenSock), Framer Motion.
-- **Trí tuệ nhân tạo (AI & LLMs):** 
-  - **Text:** Google Gemini (Cloud) hoặc Ollama (Local LLM - `qwen2.5:7b`).
-  - **Voice:** Edge-TTS (Python).
-  - **Image:** Pollinations API (Flux.1) hoặc Local ComfyUI.
+The system allows users to simply input a **Prompt (Topic)** and the AI will handle the entire pipeline:
+1. **Scripting:** Generates the script, hooks, and divides the content into visual cards.
+2. **Voice-over (TTS):** Synthesizes natural-sounding voice audio and extracts word-level timestamps for karaoke subtitles.
+3. **Image Generation:** Automatically writes prompts and generates high-quality illustrations for each scene.
+4. **Video Rendering:** Composes motion graphics (using GSAP), adds background music, syncs voice with subtitles, and exports to a 1080p@30fps `.mp4` file (or `.png` image sequence).
+
+All processes run **100% automatically** via a beautiful Next.js Dashboard.
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt (Installation Guide)
+## 🚀 Part 1: Installation for Vibecoders (AI-Assisted)
 
-### 1. Yêu Cầu Hệ Thống (Prerequisites)
-Dự án này được thiết kế theo xu hướng **AI-First**. Bạn KHÔNG CẦN phải tự cài đặt thủ công Node.js, Python hay FFmpeg một cách mệt mỏi.
+This project is built with an **AI-First** mindset. If you prefer "vibecoding", you DO NOT need to manually install Node.js, Python, or FFmpeg.
 
-Thứ duy nhất bạn cần là một **Trợ lý AI lập trình** (AI Agent) như:
-- **Antigravity** (Google)
-- **Claude Code** (Anthropic)
-- **Cursor** / **Codex**
+All you need is an **AI Coding Agent** (such as **Antigravity**, **Claude Code**, **Cursor**, or **Codex**).
 
-### 2. Cài Đặt Siêu Tốc Bằng AI
-1. Clone dự án về máy:
+1. Clone the repository to your machine:
    ```bash
    git clone https://github.com/Dokhacgiakhoa/videos-by-ai.git
    cd videos-by-ai
    ```
-2. Mở thư mục dự án trong IDE hoặc Terminal có tích hợp AI.
-3. **Chat với AI câu lệnh sau:**
-   > *"Hãy phân tích dự án này và cài đặt toàn bộ môi trường cần thiết (Node.js, Python, FFmpeg, npm install, pip install edge-tts) để chạy nó hộ tôi."*
-4. Ngồi nhâm nhi cà phê ☕ và để AI tự động cấu hình toàn bộ hệ thống cho bạn.
+2. Open the project folder in your AI-integrated IDE or Terminal.
+3. **Prompt your AI Agent with the following:**
+   > *"Please analyze this project and install all required environments (Node.js, Python, FFmpeg, npm install, pip install edge-tts) to run it for me."*
+4. Grab a coffee ☕ and let the AI automatically configure the entire system for you.
 
-### 3. Cấu Hình Biến Môi Trường (.env)
-Dự án cần một số cấu hình cơ bản để kết nối với AI.
-1. Copy file mẫu `.env.example` thành file `.env.local`:
+---
+
+## 🛠 Part 2: Installation for Real Devs (Manual Setup)
+
+If you are a traditional developer who wants full control over the environment setup, follow these instructions.
+
+### System Prerequisites
+Ensure you have the following installed on your machine and added to your system's `PATH`:
+- **Node.js:** v20.0 or higher (v24+ recommended).
+- **Python:** v3.10 or higher.
+- **FFmpeg:** Required by Remotion to compose video and audio tracks.
+- **Git:** To clone the repository.
+
+### Clone & Install Dependencies
+Open your terminal and run the following commands:
+
+```bash
+# Clone the repository
+git clone https://github.com/Dokhacgiakhoa/videos-by-ai.git
+cd videos-by-ai
+
+# Install Node.js dependencies
+npm install
+
+# Install Python dependencies (Required for Voice-over)
+pip install edge-tts
+```
+
+### Environment Configuration (.env)
+The project requires some basic configuration to connect with AI providers.
+1. Copy the `.env.example` file to create your `.env.local` file:
    ```bash
    cp .env.example .env.local
    ```
-2. Mở file `.env.local` lên và điền thông tin:
-   - Nếu bạn dùng API của Google Gemini, hãy điền Key vào (có thể tự lấy miễn phí tại Google AI Studio).
-   - Nếu bạn dùng Ollama (chạy Local hoàn toàn), hãy đảm bảo Ollama đang bật trên máy tính.
+2. Open `.env.local` and configure your variables:
+   - Provide your Google Gemini API Key (obtainable from Google AI Studio).
+   - If using local LLMs, ensure your Ollama server is running locally on port `11434`.
 
----
-
-## 💻 Cách Khởi Chạy
-
-### Chế độ Nhà Phát Triển (Development)
-Chạy lệnh sau để khởi động máy chủ Web Server:
+### Running the Application
+Start the Next.js development server:
 ```bash
 npm run dev
 ```
-👉 Sau đó mở trình duyệt và truy cập: **[http://localhost:3000](http://localhost:3000)**
+👉 Open your browser and navigate to: **[http://localhost:3000](http://localhost:3000)**
 
-*(Đối với người dùng Windows, bạn cũng có thể click đúp chuột vào file `start.bat` để máy tự động cài đặt và mở dự án mà không cần gõ lệnh).*
-
-### Đóng Gói Phần Mềm (Build to .exe)
-Nếu bạn muốn đóng gói thành 1 phần mềm Desktop cài đặt `.exe` độc lập bằng Electron:
+### Packaging to Desktop App (Electron)
+If you want to package the web application into a standalone `.exe` Desktop App using Electron:
 ```bash
-# Xoá file rác (nếu có) trước khi build
 npm run build:electron
 ```
-File cài đặt sẽ nằm trong thư mục `dist/`.
+The compiled installer will be available in the `dist/` directory.
 
 ---
 
-## 🤝 Đóng Góp (Contributing)
-Mã nguồn này được chia sẻ miễn phí với mong muốn đẩy mạnh năng suất tự động hoá trong mảng Truyền thông (Media). Nếu bạn thấy dự án hữu ích, hãy để lại **1 Ngôi sao (Star)** ⭐️ trên GitHub nhé! 
+## 🏗 Tech Stack & Architecture
 
-Mọi ý tưởng đóng góp (Pull Request) để làm dự án tốt hơn đều được chào đón!
+This project utilizes a modern React-based pipeline:
+- **Frontend / Dashboard:** Next.js 16 (App Router), React 19, Tailwind CSS, TypeScript.
+- **Video Rendering Engine:** Remotion (React-based renderer) via Headless Chromium.
+- **Motion Graphics:** GSAP (GreenSock), Framer Motion.
+- **AI & LLMs:**
+  - **Text:** Google Gemini API (Cloud) or Ollama (Local LLM - `qwen2.5:7b`).
+  - **Voice:** Edge-TTS (via Python CLI).
+  - **Image:** Pollinations API (Flux.1) or Local ComfyUI.
+- **Media Processing:** FFmpeg (for audio ducking and final composition).
+
+### Project Structure
+- `src/app/`: Next.js frontend pages, API routes, and React components.
+- `src/lib/pipeline/`: Core backend logic (LLM processing, TTS handling, image fetching, Remotion bundling).
+- `src/remotion/`: React components specifically designed to be rendered into video frames by Remotion.
+- `public/assets/`: Local storage directory for generated videos, images, and automation templates.
 
 ---
-*Powered by AI91 - Nâng tầm kỷ nguyên tự động hoá.*
+
+## 🤝 Contributing
+This source code is shared freely to boost automation productivity in the Media industry. If you find this project helpful, please give it a **Star** ⭐️ on GitHub!
+
+Pull Requests, bug reports, and feature suggestions are highly welcomed!

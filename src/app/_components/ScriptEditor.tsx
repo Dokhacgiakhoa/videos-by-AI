@@ -5,7 +5,7 @@ import React from "react";
 // Kiểu lỏng để khớp dữ liệu từ API (tránh phụ thuộc type backend trong client).
 export interface CardScriptLite {
   title: string;
-  scenes: { voiceOver: string; card: unknown }[];
+  scenes: { voiceOver: string; card: Record<string, unknown> }[];
 }
 export interface ImagePostScriptLite {
   title: string;
@@ -19,6 +19,7 @@ interface Props {
   onChangeCard: (s: CardScriptLite) => void;
   onChangeImage: (s: ImagePostScriptLite) => void;
   onRender: () => void;
+  onNextLayout?: () => void;
   onCancel: () => void;
   running: boolean;
 }
@@ -30,6 +31,7 @@ export function ScriptEditor({
   onChangeCard,
   onChangeImage,
   onRender,
+  onNextLayout,
   onCancel,
   running,
 }: Props) {
@@ -101,17 +103,27 @@ export function ScriptEditor({
       )}
 
       <div className="flex gap-2">
+        {type === "video" && onNextLayout && (
+          <button
+            onClick={onNextLayout}
+            disabled={running}
+            className="flex-1 rounded-xl bg-gradient-to-r from-cy to-emerald-500 px-6 py-2.5 text-sm font-display font-bold text-black hover:opacity-90 disabled:opacity-50 cursor-pointer uppercase tracking-wider"
+          >
+            Tiếp → Chọn Layout
+          </button>
+        )}
         <button
           onClick={onRender}
           disabled={running}
-          className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold hover:bg-indigo-500 disabled:opacity-50"
+          className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold hover:bg-indigo-500 disabled:opacity-50 cursor-pointer"
+          title={type === "video" && onNextLayout ? "Bỏ qua preview, render thẳng" : undefined}
         >
-          {running ? "Đang tạo..." : type === "video" ? "✅ Render video" : "✅ Tạo bộ ảnh"}
+          {running ? "Đang tạo..." : type === "video" ? "⚡ Render thẳng" : "✅ Tạo bộ ảnh"}
         </button>
         <button
           onClick={onCancel}
           disabled={running}
-          className="rounded-xl border border-zinc-700 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-50"
+          className="rounded-xl border border-zinc-700 px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 cursor-pointer"
         >
           Huỷ
         </button>

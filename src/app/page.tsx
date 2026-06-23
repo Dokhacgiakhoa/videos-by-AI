@@ -9,6 +9,7 @@ import { VideoResult } from "./_components/VideoResult";
 import { ImageGallery } from "./_components/ImageGallery";
 import { LibraryPanel } from "./_components/LibraryPanel";
 import { ScriptEditor, type CardScriptLite, type ImagePostScriptLite } from "./_components/ScriptEditor";
+import { LayoutStudio } from "./_components/LayoutStudio";
 import { GsapSampleSlide, totalMockupDuration } from "../remotion/GsapSampleSlide";
 import dynamic from "next/dynamic";
 
@@ -72,6 +73,7 @@ export default function Home() {
   const [draftCard, setDraftCard] = useState<CardScriptLite | null>(null);
   const [draftImage, setDraftImage] = useState<ImagePostScriptLite | null>(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [showLayoutStudio, setShowLayoutStudio] = useState(false);
   const [libRefresh, setLibRefresh] = useState(0);
 
   const [running, setRunning] = useState(false);
@@ -168,6 +170,7 @@ export default function Home() {
     setImages([]);
     setThumbs([]);
     setTitle("");
+    setShowLayoutStudio(false);
     setLog([]);
     setStatus("Bắt đầu...");
 
@@ -521,8 +524,8 @@ export default function Home() {
               </p>
             </section>
 
-            {/* Script Editor Overlay/Panel */}
-            {showEditor && (draftCard || draftImage) && (
+            {/* Script Editor (Giai đoạn 1: sửa nội dung) */}
+            {showEditor && !showLayoutStudio && (draftCard || draftImage) && (
               <ScriptEditor
                 type={prefs.type}
                 cardScript={draftCard ?? undefined}
@@ -531,6 +534,10 @@ export default function Home() {
                 onChangeImage={setDraftImage}
                 onCancel={() => setShowEditor(false)}
                 running={running}
+                onNextLayout={prefs.type === "video" && draftCard ? () => {
+                  setShowEditor(false);
+                  setShowLayoutStudio(true);
+                } : undefined}
                 onRender={() =>
                   generate(
                     prefs.type === "video"
@@ -538,6 +545,25 @@ export default function Home() {
                       : { imagePostScript: draftImage ?? undefined },
                   )
                 }
+              />
+            )}
+
+            {/* Layout Studio (Giai đoạn 2: chọn layout + preview animation + comment/remake) */}
+            {showLayoutStudio && draftCard && (
+              <LayoutStudio
+                cardScript={draftCard}
+                onChange={setDraftCard}
+                geminiKey={prefs.geminiKey}
+                brand={brand}
+                running={running}
+                onBack={() => {
+                  setShowLayoutStudio(false);
+                  setShowEditor(true);
+                }}
+                onRender={() => {
+                  setShowLayoutStudio(false);
+                  generate({ cardScript: draftCard ?? undefined });
+                }}
               />
             )}
 

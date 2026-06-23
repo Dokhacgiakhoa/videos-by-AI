@@ -68,7 +68,12 @@ export async function fetchWithRetry(
       if (res.ok) return res;
 
       const bodySnippet = (await res.text().catch(() => "")).slice(0, 500);
-      const httpErr = new HttpError(res.status, `${label} lỗi ${res.status}: ${bodySnippet}`);
+      const friendlyMsg = res.status === 503
+        ? `${label}: server đang quá tải (503). Thử lại sau ít phút.`
+        : res.status === 429
+          ? `${label}: đã vượt giới hạn request (429). Chờ một chút rồi thử lại.`
+          : `${label} lỗi ${res.status}: ${bodySnippet}`;
+      const httpErr = new HttpError(res.status, friendlyMsg);
       // Lỗi không retry được (sai key/sai request) → ném ngay, không phí thời gian.
       if (!RETRYABLE_STATUS.has(res.status)) throw httpErr;
 

@@ -473,8 +473,8 @@ export default function Home() {
               <span className="w-1.5 h-1.5 rounded-full bg-cy" /> Workspace canvas
             </h2>
 
-            {/* Live GSAP Player Section */}
-            <section className="flex flex-col gap-4 rounded-2xl border border-line bg-[#0b0f16]/60 backdrop-blur-md p-5 shadow-xl relative overflow-hidden">
+            {/* Live GSAP Player Section — ẩn khi ScriptEditor hoặc LayoutStudio đang mở */}
+            {!showEditor && !showLayoutStudio && <section className="flex flex-col gap-4 rounded-2xl border border-line bg-[#0b0f16]/60 backdrop-blur-md p-5 shadow-xl relative overflow-hidden">
               {/* Subtle top indicator border */}
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cy to-hot" />
 
@@ -522,7 +522,7 @@ export default function Home() {
                   GsapSampleSlide.tsx
                 </a>
               </p>
-            </section>
+            </section>}
 
             {/* Script Editor (Giai đoạn 1: sửa nội dung) */}
             {showEditor && !showLayoutStudio && (draftCard || draftImage) && (

@@ -80,7 +80,6 @@ export default function Home() {
   const [thumbs, setThumbs] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState("");
   const [images, setImages] = useState<PostImage[]>([]);
-  const [zipUrl, setZipUrl] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -163,7 +162,6 @@ export default function Home() {
     setError("");
     setVideoUrl("");
     setImages([]);
-    setZipUrl("");
     setThumbs([]);
     setTitle("");
     setLog([]);
@@ -209,7 +207,6 @@ export default function Home() {
           } else if (e.type === "done") {
             if (e.videoUrl) setVideoUrl(e.videoUrl);
             if (e.images) setImages(e.images.map((u: string) => ({ url: u })));
-            if (e.zipUrl) setZipUrl(e.zipUrl);
             setShowEditor(false);
             setLibRefresh((n) => n + 1);
             pushLog("✅ Hoàn thành!");
@@ -507,7 +504,7 @@ export default function Home() {
 
             {/* Final Rendered Outputs */}
             {videoUrl && <VideoResult videoUrl={videoUrl} aspect={prefs.aspect} />}
-            {!isVideo && <ImageGallery images={images} zipUrl={zipUrl} aspect={prefs.aspect} />}
+            {!isVideo && <ImageGallery images={images} aspect={prefs.aspect} />}
           </div>
 
           {/* COLUMN 3: Console Logs & History Library (Right: 3 cols on lg, 3 on xl) */}

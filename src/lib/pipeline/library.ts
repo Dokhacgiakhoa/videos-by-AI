@@ -9,7 +9,6 @@ export interface LibraryJob {
   createdAt: string; // ISO
   videoUrl?: string;
   images?: string[];
-  zipUrl?: string;
   thumb?: string; // ảnh đại diện
 }
 
@@ -38,7 +37,7 @@ export function deleteJob(id: string): boolean {
   const job = jobs.find((j) => j.id === id);
   if (!job) return false;
   const pub = path.join(process.cwd(), "public");
-  const files = [job.videoUrl, job.zipUrl, ...(job.images ?? [])].filter(Boolean) as string[];
+  const files = [job.videoUrl, ...(job.images ?? [])].filter(Boolean) as string[];
   for (const f of files) {
     try {
       fs.rmSync(path.join(pub, f.replace(/^\//, "")), { force: true });

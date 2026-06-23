@@ -10,7 +10,6 @@ interface Job {
   createdAt: string;
   videoUrl?: string;
   images?: string[];
-  zipUrl?: string;
   thumb?: string;
 }
 
@@ -58,7 +57,7 @@ export function LibraryPanel({ refreshKey }: { refreshKey: number }) {
               </div>
               <div className="flex gap-1.5 shrink-0">
                 <a
-                  href={j.videoUrl || j.zipUrl || j.images?.[0] || "#"}
+                  href={j.videoUrl || j.images?.[0] || "#"}
                   download
                   className="rounded-lg border border-line px-2.5 py-1 text-[11px] font-mono text-cy bg-cy/5 hover:bg-cy/15 transition-colors cursor-pointer"
                 >

@@ -10,7 +10,6 @@ import { fetchGoogleNews, formatNewsContext } from "./news";
 import { geminiGenerateCards, type CardScript } from "./cards";
 import { geminiGenerateImagePosts, type ImagePostScript } from "./imageposts";
 import { renderCardVideo, renderArticlePostBatch, type ArticleSlideInput } from "./remotion-render";
-import { zipFiles } from "./zip";
 import { recordJob } from "./library";
 import { durationPlan, imageDims, type AspectRatio, type Duration, type DurationPlan } from "./aspect";
 import type { Card } from "../../remotion/types";
@@ -54,7 +53,7 @@ export type ProgressEvent =
   | { type: "storyboard"; storyboard: Storyboard }
   | { type: "scene"; index: number; total: number; imageUrl: string; audioUrl: string }
   | { type: "image"; index: number; total: number; url: string; headline?: string }
-  | { type: "done"; videoUrl?: string; storyboard?: Storyboard; images?: string[]; zipUrl?: string }
+  | { type: "done"; videoUrl?: string; storyboard?: Storyboard; images?: string[] }
   | { type: "error"; message: string };
 
 export type Emit = (e: ProgressEvent) => void;
@@ -241,13 +240,13 @@ export async function runCardPipeline(
 
 /**
  * Pipeline ẢNH POST bài báo (TĨNH): chủ đề → tin tức → Gemini sinh slide
- * → sinh ảnh nền (theo tỉ lệ) → Remotion renderStill compose ảnh+tiêu đề+logo → zip.
+ * → sinh ảnh nền (theo tỉ lệ) → Remotion renderStill compose ảnh+tiêu đề+logo → xuất PNG riêng lẻ.
  */
 export async function runImagePostPipeline(
   topic: string,
   emit: Emit,
   opts: PipelineOptions = {},
-): Promise<{ images: string[]; zipUrl: string }> {
+): Promise<{ images: string[] }> {
   const jobId = `imgpost_${Date.now()}`;
   const ar = opts.aspectRatio ?? "9:16";
   const count = Math.min(10, Math.max(2, opts.count ?? 5));
@@ -295,12 +294,6 @@ export async function runImagePostPipeline(
 
   urls.forEach((url, i) => emit({ type: "image", index: i + 1, total: urls.length, url, headline: slides[i]?.headline }));
 
-  // Zip cả bộ
-  emit({ type: "status", message: "Đang nén bộ ảnh (.zip)..." });
-  const zipAbs = path.join(process.cwd(), "public", "assets", "videos", `${jobId}.zip`);
-  await zipFiles(urls.map(publicToAbs), zipAbs);
-  const zipUrl = `/assets/videos/${jobId}.zip`;
-
   recordJob({
     id: jobId,
     type: "imagepost",
@@ -308,9 +301,8 @@ export async function runImagePostPipeline(
     aspectRatio: ar,
     createdAt: new Date().toISOString(),
     images: urls,
-    zipUrl,
     thumb: urls[0],
   });
-  emit({ type: "done", images: urls, zipUrl });
-  return { images: urls, zipUrl };
+  emit({ type: "done", images: urls });
+  return { images: urls };
 }

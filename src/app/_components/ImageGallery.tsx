@@ -21,27 +21,37 @@ const gridCls: Record<Aspect, string> = {
 
 export function ImageGallery({
   images,
-  zipUrl,
   aspect,
 }: {
   images: PostImage[];
-  zipUrl: string;
   aspect: Aspect;
 }) {
   if (images.length === 0) return null;
+
+  // Tải lần lượt từng ảnh PNG (KHÔNG nén zip).
+  async function downloadAll() {
+    for (let i = 0; i < images.length; i++) {
+      const a = document.createElement("a");
+      a.href = images[i].url;
+      a.download = `anh_${i + 1}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      await new Promise((r) => setTimeout(r, 350)); // tránh trình duyệt chặn tải hàng loạt
+    }
+  }
+
   return (
     <section className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Bộ ảnh của bạn 🎉 ({images.length})</h2>
-        {zipUrl && (
-          <a
-            href={zipUrl}
-            download
-            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500"
-          >
-            ⬇ Tải tất cả (.zip)
-          </a>
-        )}
+        <button
+          type="button"
+          onClick={downloadAll}
+          className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500"
+        >
+          ⬇ Tải tất cả (PNG)
+        </button>
       </div>
       <div className={`grid gap-3 ${gridCls[aspect]}`}>
         {images.map((img, i) => (

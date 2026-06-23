@@ -9,9 +9,9 @@
           --hot: #ff5a1f;
           --hot2: #ff8a3d;
           --cy: #2fe6d6;
-          --disp: "Space Grotesk", system-ui, Arial, sans-serif;
+          --disp: "Space Grotesk", "Segoe UI", "Be Vietnam Pro", "Noto Sans", system-ui, Arial, sans-serif;
           --mono: "JetBrains Mono", ui-monospace, "Courier New", monospace;
-          --body: "Inter", system-ui, Arial, sans-serif;
+          --body: "Inter", "Segoe UI", "Be Vietnam Pro", "Noto Sans", system-ui, Arial, sans-serif;
           
           font-family: var(--body);
           background: var(--bg);

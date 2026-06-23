@@ -1,10 +1,10 @@
 {
-  "logoUrl": "/assets/brand/logo.jpg",
+  "logoUrl": "/assets/brand/logo.png",
   "palette": {
-    "primary": "#fa6309",
-    "secondary": "#fcad7d",
-    "accent": "#842c16",
-    "bg": "#474747",
-    "text": "#bcbcbc"
+    "primary": "#f65307",
+    "secondary": "#efb183",
+    "accent": "#c85218",
+    "bg": "#3c443c",
+    "text": "#d2c1c0"
   }
 }

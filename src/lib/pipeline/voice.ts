@@ -26,6 +26,7 @@ export interface VoiceOptions {
   voice?: string;
   /** Tốc độ đọc, định dạng edge-tts vd "+0%", "-15%", "+20%". */
   rate?: string;
+  ttsEngine?: "edgetts" | "omnivoice";
   /** Tín hiệu hủy job — kill tiến trình Python edge-tts nếu abort. */
   signal?: AbortSignal;
 }
@@ -45,6 +46,50 @@ export async function generateVoiceWithTimestamps(text: string, sceneId: string,
   const audioFilePath = path.join(audioDir, audioFilename);
   const timestampsFilePath = path.join(dataDir, `${sceneId}_timestamps.json`);
   const scriptPath = path.join(process.cwd(), "scripts", "edge_tts_gen.py");
+
+  if (vopts.ttsEngine === "omnivoice") {
+    console.log(`Đang sinh giọng đọc (OmniVoice) cho: "${text.substring(0, 50)}..."`);
+    const baseUrl = process.env.OMNIVOICE_URL || "http://localhost:8000/v1";
+    // Map edge-tts voice names to omnivoice names if needed, or just pass it
+    let voiceId = "omnivoice";
+    if (voice === "en-US-JennyNeural") voiceId = "omnivoice-female";
+    if (voice === "en-US-GuyNeural") voiceId = "omnivoice-male";
+    
+    try {
+      const res = await fetch(`${baseUrl}/audio/speech`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer no-key-needed"
+        },
+        body: JSON.stringify({
+          model: "omnivoice",
+          input: text,
+          voice: voiceId,
+          response_format: "mp3"
+        }),
+        signal: vopts.signal
+      });
+      
+      if (!res.ok) {
+        throw new Error(`OmniVoice API lỗi: ${res.statusText}`);
+      }
+      
+      const buffer = await res.arrayBuffer();
+      fs.writeFileSync(audioFilePath, Buffer.from(buffer));
+      
+      // OmniVoice hiện không hỗ trợ timestamps cho từng từ -> tạo timestamps rỗng
+      fs.writeFileSync(timestampsFilePath, JSON.stringify({ words: [] }));
+      
+      return {
+        audioUrl: `/assets/audio/${audioFilename}`,
+        timestampsUrl: `/assets/data/${sceneId}_timestamps.json`,
+        words: [],
+      };
+    } catch (err: any) {
+      throw new Error(`Lỗi gọi OmniVoice: ${err.message}. Đảm bảo OmniVoice-Server đang chạy ở ${baseUrl}`);
+    }
+  }
 
   console.log(`Đang sinh giọng đọc (Edge-TTS) cho: "${text.substring(0, 50)}..."`);
 

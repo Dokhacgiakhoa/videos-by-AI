@@ -40,7 +40,7 @@ Yêu cầu:
 1. Độ dài: Khoảng ${plan.sceneCount} cảnh (scenes). TỔNG lời thoại (voiceOver) khoảng ${plan.wordBudget} từ tiếng Việt (~${Math.round(plan.aimSeconds / 60)} phút).
 2. Giọng điệu: Hấp dẫn, bí ẩn hoặc kịch tính (tuỳ chủ đề). Câu đầu tiên phải là "Hook" cực mạnh để giữ chân người xem.
 3. VoiceOver: Viết bằng tiếng Việt, ngôn từ tự nhiên, ngắt nghỉ hợp lý.
-4. ImagePrompt: BẮT BUỘC viết bằng TIẾNG ANH. Đây là prompt cho AI sinh ảnh (Flux), hãy miêu tả cực kỳ chi tiết về góc máy, ánh sáng, phong cách hình ảnh (ví dụ: cinematic, photorealistic, 8k resolution, dramatic lighting, highly detailed). KHÔNG CÓ CHỮ (no text) trong ảnh. Cần giữ phong cách nhất quán giữa các cảnh.
+4. ImagePrompt: BẮT BUỘC viết bằng TIẾNG ANH. ĐÂY LÀ PROMPT SINH ẢNH, BẮT BUỘC ÁP DỤNG CÔNG THỨC 4 PHẦN: [1. Chủ thể & Hành động], [2. Bối cảnh & Môi trường], [3. Phong cách nghệ thuật: cinematic, photorealistic, 8k], [4. Ánh sáng, Không khí & Góc máy: dramatic lighting, highly detailed]. TUYỆT ĐỐI KHÔNG CÓ CHỮ (no text) trong ảnh. Phong cách phải nhất quán giữa các cảnh.
 
 Trả về kết quả DƯỚI DẠNG JSON thuần tuý (không có markdown formatting, không có backticks, không giải thích gì thêm), tuân thủ CHÍNH XÁC cấu trúc sau:
 {

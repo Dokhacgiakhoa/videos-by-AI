@@ -4,11 +4,25 @@
   "private": true,
   "author": "Dokhacgiakhoa <dokhacgiakhoa666@gmail.com>",
   "license": "MIT",
+  "main": "main.js",
   "scripts": {
     "dev": "next dev",
+    "dev:electron": "concurrently -k \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
     "build": "next build",
+    "build:electron": "next build && electron-builder --win",
     "start": "next start",
     "lint": "eslint"
+  },
+  "build": {
+    "appId": "com.dokhacgiakhoa.videosbyai",
+    "productName": "Videos-by-AI",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    }
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -19,6 +33,7 @@
     "@remotion/tailwind": "^4.0.481",
     "framer-motion": "^12.40.0",
     "gsap": "^3.15.0",
+    "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "node-vibrant": "^4.0.4",
     "react": "19.2.4",
@@ -31,9 +46,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.3",
+    "electron": "^42.5.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.0.10"
   }
 }

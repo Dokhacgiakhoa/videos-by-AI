@@ -67,15 +67,41 @@ export async function fetchWithRetry(
       const res = await fetch(url, { ...init, signal: combined });
       if (res.ok) return res;
 
-      const bodySnippet = (await res.text().catch(() => "")).slice(0, 500);
-      const friendlyMsg = res.status === 503
-        ? `${label}: server đang quá tải (503). Thử lại sau ít phút.`
-        : res.status === 429
-          ? `${label}: đã vượt giới hạn request (429). Chờ một chút rồi thử lại.`
-          : `${label} lỗi ${res.status}: ${bodySnippet}`;
+      let bodySnippet = "";
+      try {
+        bodySnippet = await res.clone().text();
+      } catch (e) {
+        // ignore
+      }
+
+      let friendlyMsg = "";
+      switch (res.status) {
+        case 400:
+          friendlyMsg = `[ERR_400] ${label}: Cú pháp không hợp lệ hoặc bị AI từ chối. Hãy kiểm tra lại API Key hoặc nội dung.`;
+          break;
+        case 401:
+        case 403:
+          friendlyMsg = `[ERR_AUTH] ${label}: API Key bị từ chối (${res.status}). Có thể bạn nhập sai Key hoặc Key đã bị khoá.`;
+          break;
+        case 429:
+          if (bodySnippet.toLowerCase().includes("per day") || bodySnippet.toLowerCase().includes("daily")) {
+            friendlyMsg = `[ERR_429_DAILY] ${label}: Đã sử dụng hết TOÀN BỘ lượt gọi API trong ngày của bản miễn phí.`;
+          } else {
+            friendlyMsg = `[ERR_429_MINUTE] ${label}: Vượt giới hạn số lần gọi API mỗi phút.`;
+          }
+          break;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          friendlyMsg = `[ERR_50X] ${label}: Máy chủ Google AI đang bị lỗi hoặc quá tải (${res.status}).`;
+          break;
+        default:
+          friendlyMsg = `${label} gặp lỗi không xác định (${res.status}): ${bodySnippet.slice(0, 100)}`;
+      }
       const httpErr = new HttpError(res.status, friendlyMsg);
-      // Lỗi không retry được (sai key/sai request) → ném ngay, không phí thời gian.
-      if (!RETRYABLE_STATUS.has(res.status)) throw httpErr;
+      // Lỗi không retry được (sai key/sai request, hoặc hết quota ngày) → ném ngay, không phí thời gian.
+      if (!RETRYABLE_STATUS.has(res.status) || friendlyMsg.includes("ERR_429_DAILY")) throw httpErr;
 
       lastErr = httpErr;
       const retryAfter = Number(res.headers.get("retry-after"));

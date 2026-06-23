@@ -29,6 +29,7 @@ export interface Card {
   star: string;             
   durationInFrames: number; 
   words?: VoiceWord[];      
+  voiceOver?: string;
 
   // Explicit layout type indicator (defaults to 'card' if undefined)
   layoutType?: "card" | "cream" | "manim" | "title" | "list" | "text-image" | "text-video" | "chart" | "bento" | "split-3d" | "quote" | "stats-grid" | "timeline" | "code-snippet" | "outro";
@@ -135,12 +136,17 @@ export interface ArticlePostProps {
   width: number;
   height: number;
   headline: string;
+  /** Tóm tắt ngắn (1–2 câu) hiển thị dưới tiêu đề. */
+  summary?: string;
+  /** @deprecated dùng `summary`. Giữ để tương thích ngược. */
   subheadline?: string;
   source?: string;
   date?: string;
-  /** URL ảnh nền (http... hoặc đường dẫn trong public/). */
+  /** URL ảnh (http... hoặc đường dẫn trong public/). */
   imageSrc: string;
   brandText: string;
   eyebrow?: string;
   accent?: Accent;
+  /** Brand đã phân tích từ logo — màu khối + logo ăn theo. */
+  brand?: BrandConfig;
 }

@@ -34,6 +34,45 @@ export function isAspectRatio(v: unknown): v is AspectRatio {
   return typeof v === "string" && (ASPECTS as string[]).includes(v);
 }
 
+/**
+ * Tỉ lệ RIÊNG cho ẢNH POST (album bài viết) — mỗi slide chọn 1 tỉ lệ.
+ * Tách khỏi AspectRatio (video/Imagen chỉ nhận 9:16/1:1/16:9) để thêm 4:5, 2:1
+ * mà không phá pipeline video. Mọi khung lấy bề rộng chuẩn 1080 cho social.
+ */
+export type PostRatio = "1:1" | "4:5" | "9:16" | "2:1" | "16:9";
+
+export const POST_DIMS: Record<PostRatio, Dimensions> = {
+  "1:1": { width: 1080, height: 1080 },
+  "4:5": { width: 1080, height: 1350 },
+  "9:16": { width: 1080, height: 1920 },
+  "2:1": { width: 1080, height: 540 },
+  "16:9": { width: 1080, height: 608 },
+};
+
+/**
+ * AI Models (Flux, SDXL) sinh ảnh đẹp nhất ở các tỉ lệ chuẩn (1:1, 16:9, 9:16).
+ * Các tỉ lệ dị như 2:1 hay 4:5 nếu ép gen trực tiếp thường bị méo hình.
+ * Hàm này map tỉ lệ post về tỉ lệ AI chuẩn gần nhất để gen, sau đó UI/Video sẽ tự crop (object-cover).
+ */
+export function getAIAspectRatio(r: PostRatio): AspectRatio {
+  if (r === "9:16") return "9:16";
+  if (r === "1:1") return "1:1";
+  if (r === "16:9") return "16:9";
+  if (r === "2:1") return "16:9"; // 2:1 gần với 16:9, gen 16:9 rồi crop trên/dưới
+  if (r === "4:5") return "1:1"; // 4:5 gần với 1:1, gen 1:1 rồi crop 2 bên
+  return "1:1";
+}
+
+const POST_RATIOS: PostRatio[] = ["1:1", "4:5", "9:16", "2:1", "16:9"];
+
+export function isPostRatio(v: unknown): v is PostRatio {
+  return typeof v === "string" && (POST_RATIOS as string[]).includes(v);
+}
+
+export function postDims(r: PostRatio): Dimensions {
+  return POST_DIMS[r] ?? POST_DIMS["4:5"];
+}
+
 export function videoDims(ar: AspectRatio): Dimensions {
   return VIDEO_DIMS[ar] ?? VIDEO_DIMS["9:16"];
 }

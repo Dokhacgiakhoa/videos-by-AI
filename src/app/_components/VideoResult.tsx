@@ -20,7 +20,7 @@ export function VideoResult({ videoUrl, aspect }: { videoUrl: string; aspect: As
       <a
         href={videoUrl}
         download
-        className="self-start rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold hover:bg-emerald-500"
+        className="self-start rounded-xl bg-emerald-600 px-5 py-2 text-base font-semibold hover:bg-emerald-500"
       >
         ⬇ Tải video (.mp4)
       </a>

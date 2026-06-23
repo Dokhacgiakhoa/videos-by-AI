@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { durationPlan, type DurationPlan } from "./aspect";
 import { fetchWithRetry } from "./http";
+import { geminiGenerateContentWithFallback } from "./google";
+import { ollamaGenerateContent } from "./ollama";
 
 /**
  * Sinh nội dung video dạng "THẺ" (cho format motion-graphics AI91) bằng Gemini.
@@ -10,8 +12,8 @@ import { fetchWithRetry } from "./http";
 
 const CardSchema = z.object({
   name: z.string(),
-  label: z.string().optional(),
-  pillDay: z.string().optional(),
+  label: z.string().nullish(),
+  pillDay: z.string().nullish(),
   badges: z.array(z.string()).max(4),
   tag: z.string(),
   stat: z.string(),
@@ -42,10 +44,8 @@ export async function geminiGenerateCards(
   newsContext?: string,
   geminiKey?: string,
   plan: DurationPlan = durationPlan("short"),
+  ollamaOptions?: { enabled?: boolean; host?: string; model?: string },
 ): Promise<CardScript> {
-  const key = geminiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!key) throw new Error("Cần Gemini API key cho format Card. Nhập key trên giao diện hoặc đặt GEMINI_API_KEY trong .env.local.");
-  const model = process.env.GEMINI_TEXT_MODEL ?? "gemini-2.5-flash";
 
   const newsBlock = newsContext
     ? `
@@ -80,21 +80,24 @@ LƯU Ý: chỉ có voiceOver được DÀI; mọi CHỮ HIỂN THỊ trên card 
 Trả về JSON thuần đúng cấu trúc:
 {"title":"...","scenes":[{"voiceOver":"...","card":{"name":"FIRECRAWL","label":"aidev.repo · daily","pillDay":"REPO OF THE DAY","badges":["MIT","TypeScript","API"],"tag":"Crawl & cào mọi website thành <em>dữ liệu sạch cho LLM</em> — không cần sitemap.","stat":"96","statSuffix":"%","lab1":"phủ","lab2":"toàn web","cmd":"npx firecrawl-mcp","star":"12.3K"}}]}`;
 
-  const res = await fetchWithRetry(
-    `${BASE}/models/${model}:generateContent?key=${key}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
-      }),
-    },
-    { label: "Gemini (kịch bản thẻ)" },
-  );
-  const data = await res.json();
-  const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini không trả về nội dung thẻ.");
+  let text: string;
+  if (ollamaOptions?.enabled) {
+    text = await ollamaGenerateContent(prompt, {
+      host: ollamaOptions.host,
+      model: ollamaOptions.model,
+      temperature: 0.8,
+      label: "Ollama (kịch bản thẻ)",
+    });
+  } else {
+    const key = geminiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!key) throw new Error("Cần Gemini API key cho format Card. Nhập key trên giao diện hoặc đặt GEMINI_API_KEY trong .env.local.");
+    text = await geminiGenerateContentWithFallback(key, prompt, {
+      temperature: 0.8,
+      responseMimeType: "application/json",
+      label: "Gemini (kịch bản thẻ)",
+      preferredModel: process.env.GEMINI_TEXT_MODEL ?? "gemini-1.5-flash",
+    });
+  }
 
   const cleanJson = text.trim().replace(/^```json\n?/, "").replace(/\n?```$/, "");
   return CardScriptSchema.parse(JSON.parse(cleanJson));
@@ -132,10 +135,8 @@ export async function geminiAssignLayouts(
   cardScript: CardScript,
   geminiKey?: string,
   comment?: string,
+  ollamaOptions?: { enabled?: boolean; host?: string; model?: string },
 ): Promise<CardScript> {
-  const key = geminiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!key) throw new Error("Cần Gemini API key để assign layout.");
-  const model = process.env.GEMINI_TEXT_MODEL ?? "gemini-2.5-flash";
 
   const sceneSummary = cardScript.scenes
     .map((s, i) => `Scene ${i + 1}: "${s.voiceOver.slice(0, 120)}..."`)
@@ -177,21 +178,24 @@ QUY TẮC: mọi CHỮ HIỂN THỊ trên layout (title, label, item...) phải 
 
 Trả về JSON: {"title":"...","scenes":[{"voiceOver":"...","card":{...tất cả field bao gồm layoutType + layout data...}}]}`;
 
-  const res = await fetchWithRetry(
-    `${BASE}/models/${model}:generateContent?key=${key}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, responseMimeType: "application/json" },
-      }),
-    },
-    { label: "Gemini (assign layouts)" },
-  );
-  const data = await res.json();
-  const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini không trả về layout data.");
+  let text: string;
+  if (ollamaOptions?.enabled) {
+    text = await ollamaGenerateContent(prompt, {
+      host: ollamaOptions.host,
+      model: ollamaOptions.model,
+      temperature: 0.7,
+      label: "Ollama (assign layouts)",
+    });
+  } else {
+    const key = geminiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!key) throw new Error("Cần Gemini API key để assign layout.");
+    text = await geminiGenerateContentWithFallback(key, prompt, {
+      temperature: 0.7,
+      responseMimeType: "application/json",
+      label: "Gemini layout",
+      preferredModel: process.env.GEMINI_TEXT_MODEL ?? "gemini-1.5-flash",
+    });
+  }
 
   const cleanJson = text.trim().replace(/^```json\n?/, "").replace(/\n?```$/, "");
   const result = JSON.parse(cleanJson) as CardScript;

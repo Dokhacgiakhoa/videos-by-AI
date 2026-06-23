@@ -48,9 +48,9 @@ const videoDefaultProps: Record<string, unknown> = {
 
 const articleDefaultProps: Record<string, unknown> = {
   width: 1080,
-  height: 1920,
+  height: 1350,
   headline: "AI tạo sinh bùng nổ tại Việt Nam",
-  subheadline: "Doanh nghiệp tăng tốc ứng dụng để bứt phá năng suất",
+  summary: "Doanh nghiệp tăng tốc ứng dụng AI để bứt phá năng suất trong năm 2026.",
   source: "VnExpress",
   date: "2026-06-23",
   imageSrc: "ai91-logo-hi.png",

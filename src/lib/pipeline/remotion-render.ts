@@ -3,8 +3,8 @@ import path from "path";
 import fs from "fs";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition, makeCancelSignal } from "@remotion/renderer";
-import type { Card, ArticlePostProps } from "../../remotion/types";
-import { videoDims, type AspectRatio } from "./aspect";
+import type { Card, ArticlePostProps, BrandConfig } from "../../remotion/types";
+import { videoDims, postDims, type AspectRatio, type PostRatio } from "./aspect";
 
 const FPS = 30;
 
@@ -96,39 +96,42 @@ export async function renderCardVideo(opts: RenderCardVideoOptions): Promise<str
 
 export interface ArticleSlideInput {
   headline: string;
-  subheadline?: string;
+  summary?: string;
   source?: string;
   date?: string;
   imageSrc: string; // đường dẫn public (vd /assets/images/x.png)
   eyebrow?: string;
+  ratio: PostRatio; // tỉ lệ RIÊNG của slide này
 }
 
 /**
- * Render 1 BỘ ảnh post tĩnh (renderStill mỗi slide). Bundle 1 lần cho cả bộ.
+ * Render 1 BỘ ảnh post tĩnh (renderStill mỗi slide, mỗi slide 1 tỉ lệ riêng).
+ * Bundle 1 lần cho cả bộ.
  * @returns mảng đường dẫn public của ảnh PNG.
  */
 export async function renderArticlePostBatch(
   slides: ArticleSlideInput[],
-  opts: { aspectRatio?: AspectRatio; jobId: string; brandText?: string; signal?: AbortSignal; onProgress?: (m: string) => void },
+  opts: { jobId: string; brandText?: string; brand?: BrandConfig; signal?: AbortSignal; onProgress?: (m: string) => void },
 ): Promise<string[]> {
-  const { aspectRatio = "9:16", jobId, brandText = "AI91", signal, onProgress } = opts;
+  const { jobId, brandText = "AI91", brand, signal, onProgress } = opts;
   const imagesDir = path.join(process.cwd(), "public", "assets", "images");
   fs.mkdirSync(imagesDir, { recursive: true });
 
-  const { width, height } = videoDims(aspectRatio); // dùng kích thước video cho ảnh post (nét, đủ lớn)
   const bundleLocation = await getBundle(onProgress);
 
   const outUrls: string[] = [];
   for (let i = 0; i < slides.length; i++) {
     signal?.throwIfAborted();
     const s = slides[i];
-    onProgress?.(`Đang dựng ảnh post ${i + 1}/${slides.length}...`);
+    const { width, height } = postDims(s.ratio);
+    onProgress?.(`Đang dựng ảnh post ${i + 1}/${slides.length} (${s.ratio})...`);
     const props: Record<string, unknown> = {
       ...s,
       width,
       height,
       brandText,
-      // ảnh nền: bỏ tiền tố / để Remotion staticFile resolve trong public
+      brand,
+      // ảnh: bỏ tiền tố / để Remotion staticFile resolve trong public
       imageSrc: s.imageSrc.replace(/^\//, ""),
     } satisfies Partial<ArticlePostProps> & Record<string, unknown>;
 

@@ -125,22 +125,29 @@ export function LayoutStudio({ cardScript, onChange, onBack, onRender, geminiKey
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-line bg-panel/60 backdrop-blur-md p-5 shadow-xl">
+    <div className="flex flex-col gap-4 p-5 tech-card-glass">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-display font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-2">
+        <h2 className="text-base font-display font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-hot" />
           Layout Studio — {cardScript.title}
         </h2>
         <div className="flex gap-2">
           <button
             onClick={autoAssign}
-            disabled={remaking}
-            className="rounded-lg border border-cy/30 bg-cy/10 px-3 py-1.5 text-[11px] font-mono font-bold text-cy hover:bg-cy/20 transition-colors cursor-pointer disabled:opacity-40"
+            disabled={remaking || !geminiKey}
+            title={!geminiKey ? "Nhập Gemini API Key ở Bước 1 để tự động phân phối layout bằng AI" : "Tự động phân phối layout bằng AI"}
+            className="rounded-lg px-3 py-1.5 text-base font-mono font-bold text-cy disabled:opacity-40 cursor-pointer tech-btn-glass"
           >
             {remaking ? "Đang xử lý..." : "🤖 Auto Layout"}
           </button>
         </div>
       </div>
+
+      {!geminiKey && (
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3.5 py-2.5 text-base font-sans text-amber-400/90 leading-relaxed">
+          ⚠️ <strong>Chế độ không có API key:</strong> Bạn vẫn có thể tự chọn layout cho từng cảnh bằng menu thả xuống ở danh sách bên dưới. Các tính năng tự động bằng AI (Auto Layout & Remake) tạm thời bị khóa.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* LEFT: Scene list + layout picker */}
@@ -149,19 +156,19 @@ export function LayoutStudio({ cardScript, onChange, onBack, onRender, geminiKey
             <div
               key={i}
               onClick={() => setSelectedScene(i)}
-              className={`flex items-start gap-2 rounded-xl border p-2.5 cursor-pointer transition-colors ${
+              className={`flex items-start gap-2.5 rounded-xl border p-2.5 cursor-pointer transition-all ${
                 i === selectedScene
-                  ? "border-hot/50 bg-hot/5"
-                  : "border-line bg-black/30 hover:border-line hover:bg-black/50"
+                  ? "border-hot/40 bg-hot/5 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
+                  : "border-line bg-black/25 hover:border-line/80 hover:bg-black/40"
               }`}
             >
-              <span className="text-[10px] font-mono text-zinc-500 mt-0.5 shrink-0 w-5">{i + 1}</span>
+              <span className="text-base font-mono text-zinc-400 mt-0.5 shrink-0 w-5">{i + 1}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-zinc-300 truncate">{scene.voiceOver.slice(0, 80)}...</p>
+                <p className="text-base text-white truncate">{scene.voiceOver.slice(0, 80)}...</p>
                 <select
                   value={(scene.card.layoutType as string) || "card"}
                   onChange={(e) => { e.stopPropagation(); updateLayout(i, e.target.value); }}
-                  className="mt-1 rounded-md border border-line bg-black/60 px-2 py-0.5 text-[10px] font-mono text-cy cursor-pointer"
+                  className="mt-1.5 rounded-lg px-2.5 py-1 text-base font-mono text-cy cursor-pointer tech-input-glass"
                 >
                   {LAYOUT_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -174,7 +181,7 @@ export function LayoutStudio({ cardScript, onChange, onBack, onRender, geminiKey
 
         {/* RIGHT: Preview Player */}
         <div className="flex flex-col gap-3">
-          <div className="rounded-xl border border-line bg-black overflow-hidden" style={{ aspectRatio: "9/16", maxHeight: 520 }}>
+          <div className="rounded-2xl border border-line bg-black overflow-hidden shadow-inner" style={{ aspectRatio: "9/16", maxHeight: 520 }}>
             <Player
               component={Ai91Video as unknown as React.ComponentType<Record<string, unknown>>}
               inputProps={{
@@ -192,7 +199,7 @@ export function LayoutStudio({ cardScript, onChange, onBack, onRender, geminiKey
               acknowledgeRemotionLicense
             />
           </div>
-          <p className="text-[10px] font-mono text-zinc-500 text-center">
+          <p className="text-base font-mono text-zinc-400 text-center">
             Preview {previewCards.length} cảnh · {Math.round(totalFrames / PREVIEW_FPS)}s · click scene bên trái để xem
           </p>
         </div>
@@ -204,33 +211,34 @@ export function LayoutStudio({ cardScript, onChange, onBack, onRender, geminiKey
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="Gõ feedback (vd: cảnh 3 đổi sang chart, thêm dữ liệu so sánh...)"
-          className="flex-1 rounded-xl border border-line bg-black/40 px-3 py-2 text-xs font-mono text-zinc-200 placeholder:text-zinc-600 resize-none"
+          className="flex-1 p-2.5 text-base font-mono text-white placeholder:text-zinc-400 resize-none tech-input-glass"
           rows={2}
         />
         <button
           onClick={remake}
-          disabled={remaking || !comment.trim()}
-          className="rounded-xl border border-hot/30 bg-hot/10 px-4 text-xs font-mono font-bold text-hot hover:bg-hot/20 transition-colors cursor-pointer disabled:opacity-40 whitespace-nowrap"
+          disabled={remaking || !comment.trim() || !geminiKey}
+          title={!geminiKey ? "Nhập Gemini API Key ở Bước 1 để phản hồi kịch bản bằng AI" : "Cập nhật kịch bản bằng AI"}
+          className="rounded-xl px-4 text-base font-mono font-bold text-hot disabled:opacity-40 cursor-pointer whitespace-nowrap tech-btn-glass"
         >
           🔄 Remake
         </button>
       </div>
 
-      {error && <p className="text-[10px] text-red-400 font-mono">{error}</p>}
+      {error && <p className="text-base text-red-400 font-mono">{error}</p>}
 
       {/* Action buttons */}
       <div className="flex gap-2 pt-1">
         <button
           onClick={onBack}
           disabled={running}
-          className="rounded-xl border border-line px-4 py-2.5 text-xs font-mono text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors cursor-pointer"
+          className="rounded-xl px-4 py-2.5 text-base font-mono text-zinc-400 cursor-pointer tech-btn-glass"
         >
           ◀ Sửa nội dung
         </button>
         <button
           onClick={onRender}
           disabled={running}
-          className="flex-1 rounded-xl bg-gradient-to-r from-hot to-hot2 py-2.5 text-sm font-display font-bold text-black transition-all shadow-lg shadow-hot/10 disabled:opacity-40 cursor-pointer uppercase tracking-wider"
+          className="flex-1 rounded-xl py-2.5 text-base font-display font-bold transition-all disabled:opacity-40 cursor-pointer uppercase tracking-wider tech-btn-liquid"
         >
           {running ? "Đang render..." : "▶ Render Video"}
         </button>

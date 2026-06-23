@@ -19,6 +19,13 @@
 
 # production
 /build
+/dist
+/release
+
+# temporary work files
+/public/assets/work/
+/public/assets/videos/
+/public/assets/images/
 
 # misc
 .DS_Store

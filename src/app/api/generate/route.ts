@@ -48,6 +48,10 @@ export async function POST(request: Request) {
   let aspectRatio: AspectRatio = "9:16";
   let duration: Duration = "short";
   let useNews = false;
+  let noApiMode = false;
+  let ollamaMode = false;
+  let ollamaHost = "";
+  let ollamaModel = "";
   let newsQuery = "";
   let geminiKey = "";
   let voice = "en-US-GuyNeural";
@@ -57,6 +61,14 @@ export async function POST(request: Request) {
   let cardScript: PipelineOptions["cardScript"];
   let imagePostScript: PipelineOptions["imagePostScript"];
   let brandFromBody: PipelineOptions["brand"];
+  let newsSourceType = "auto";
+  let newsTimeframe = "";
+  let newsCustomDays = 3;
+  let newsManualUrls: string[] | undefined = undefined;
+  let count: number | undefined = undefined;
+  let postRatio: string | undefined = undefined;
+  let useCoverImage = false;
+  let ttsEngine: "edgetts" | "omnivoice" = "omnivoice";
 
   try {
     const body = await request.json();
@@ -72,10 +84,24 @@ export async function POST(request: Request) {
     if (isAspectRatio(body?.aspectRatio)) aspectRatio = body.aspectRatio;
     if (isDuration(body?.duration)) duration = body.duration;
     useNews = Boolean(body?.useNews);
+    noApiMode = Boolean(body?.noApiMode);
+    ollamaMode = Boolean(body?.ollamaMode);
+    ollamaHost = (body?.ollamaHost ?? "").toString().trim();
+    ollamaModel = (body?.ollamaModel ?? "").toString().trim();
     newsQuery = (body?.newsQuery ?? "").toString().trim();
     geminiKey = (body?.geminiKey ?? "").toString().trim();
     if (typeof body?.voice === "string" && /^[a-z]{2}-[A-Z]{2}-\w+$/.test(body.voice)) voice = body.voice;
     if (typeof body?.rate === "string") rate = RATE_MAP[body.rate] ?? RATE_MAP.normal;
+
+    newsSourceType = body?.newsSourceType === "manual" ? "manual" : "auto";
+    newsTimeframe = (body?.newsTimeframe ?? "").toString().trim();
+    if (body?.newsCustomDays) newsCustomDays = Number(body.newsCustomDays);
+    if (Array.isArray(body?.newsManualUrls)) {
+      newsManualUrls = body.newsManualUrls.map((u: any) => String(u).trim()).filter(Boolean);
+    }
+    if (body?.count) count = Number(body.count);
+    if (body?.postRatio) postRatio = String(body.postRatio);
+    useCoverImage = Boolean(body?.useCoverImage);
   } catch {
     return new Response(JSON.stringify({ error: "Body JSON không hợp lệ" }), { status: 400 });
   }
@@ -86,9 +112,9 @@ export async function POST(request: Request) {
   if (topic.length > 2000) {
     return new Response(JSON.stringify({ error: "Chủ đề quá dài (tối đa 2000 ký tự)" }), { status: 400 });
   }
-  // Preset có kịch bản sẵn → không cần Gemini key; còn lại bắt buộc key
-  if (!preset && !geminiKey && !process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
-    return new Response(JSON.stringify({ error: "Cần Gemini API key (nhập trên giao diện)." }), { status: 400 });
+  // Preset hoặc AI Local hoặc noApiMode -> không cần Gemini key
+  if (!preset && !noApiMode && !ollamaMode && !geminiKey && !process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+    return new Response(JSON.stringify({ error: "Cần Gemini API key hoặc bật chế độ AI Local (Ollama)." }), { status: 400 });
   }
 
   const jobLabel = `${type}:${aspectRatio}:${duration}`;
@@ -101,8 +127,15 @@ export async function POST(request: Request) {
 
   const opts: PipelineOptions = {
     useNews,
+    noApiMode,
+    newsSourceType: newsSourceType as "auto" | "manual",
     newsQuery,
+    newsTimeframe: newsTimeframe || undefined,
+    newsManualUrls,
     geminiKey,
+    ollamaMode,
+    ollamaHost: ollamaHost || undefined,
+    ollamaModel: ollamaModel || undefined,
     aspectRatio,
     duration,
     voice,
@@ -113,6 +146,10 @@ export async function POST(request: Request) {
     signal: request.signal,
     preset: preset || undefined,
     brand: brandFromBody ?? loadBrandJson(),
+    count,
+    postRatio: postRatio as any,
+    useCoverImage,
+    ttsEngine,
   };
 
   const encoder = new TextEncoder();

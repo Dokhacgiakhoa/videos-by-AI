@@ -1,6 +1,13 @@
 import fs from "fs";
 import path from "path";
 
+/** 1 ảnh post trong thư viện: url + tỉ lệ (để hiển thị đúng khung). */
+export interface LibraryImage {
+  url: string;
+  ratio?: string;
+  headline?: string;
+}
+
 export interface LibraryJob {
   id: string;
   type: "video" | "imagepost";
@@ -8,8 +15,9 @@ export interface LibraryJob {
   aspectRatio: string;
   createdAt: string; // ISO
   videoUrl?: string;
-  images?: string[];
+  images?: LibraryImage[];
   thumb?: string; // ảnh đại diện
+  scriptData?: any; // Lưu trữ toàn bộ dữ liệu script/caption
 }
 
 const DATA_DIR = path.join(process.cwd(), "public", "assets", "data");
@@ -37,7 +45,7 @@ export function deleteJob(id: string): boolean {
   const job = jobs.find((j) => j.id === id);
   if (!job) return false;
   const pub = path.join(process.cwd(), "public");
-  const files = [job.videoUrl, ...(job.images ?? [])].filter(Boolean) as string[];
+  const files = [job.videoUrl, ...(job.images ?? []).map((im) => im.url)].filter(Boolean) as string[];
   for (const f of files) {
     try {
       fs.rmSync(path.join(pub, f.replace(/^\//, "")), { force: true });

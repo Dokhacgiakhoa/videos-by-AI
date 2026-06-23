@@ -72,9 +72,40 @@ const SceneComponent: React.FC<{ card: Card; index: number }> = ({ card, index }
   return (
     <>
       <SlideRenderer slide={card} activeIndex={index} localFrame={localFrame} />
-      {card.words && card.words.length > 0 && (
+      {card.words && card.words.length > 0 ? (
         <KaraokeSubtitles words={card.words} durationInFrames={durationInFrames} />
-      )}
+      ) : card.voiceOver ? (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "flex-start",
+            gap: "0.625rem",
+            background: "rgba(7, 10, 15, 0.45)",
+            backdropFilter: "blur(0.5rem)",
+            padding: "1rem 1.5rem",
+            borderRadius: "1rem",
+            border: "1px solid var(--line)",
+            marginTop: "1.5rem",
+            maxWidth: "55rem",
+            zIndex: 9999,
+            position: "absolute",
+            bottom: "8rem",
+            left: "5.5rem",
+            boxSizing: "border-box",
+            fontSize: "1.75rem",
+            fontFamily: "var(--font-space), monospace",
+            fontWeight: 800,
+            textTransform: "uppercase",
+            color: "var(--hot)",
+            textShadow: "0 0 10px rgba(255, 95, 87, 0.4)",
+            lineHeight: 1.4,
+            letterSpacing: "0.02em"
+          }}
+        >
+          {card.voiceOver}
+        </div>
+      ) : null}
     </>
   );
 };

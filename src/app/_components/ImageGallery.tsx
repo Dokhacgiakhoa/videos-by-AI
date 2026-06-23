@@ -1,31 +1,23 @@
 "use client";
 
-type Aspect = "9:16" | "1:1" | "16:9";
+type PostRatio = "1:1" | "4:5" | "9:16" | "2:1" | "16:9";
 
 interface PostImage {
   url: string;
   headline?: string;
+  ratio?: PostRatio;
 }
 
-const aspectCls: Record<Aspect, string> = {
-  "9:16": "aspect-[9/16]",
-  "1:1": "aspect-square",
-  "16:9": "aspect-video",
+/** Tỉ lệ → giá trị CSS aspect-ratio (mỗi ảnh trong album có thể khác nhau). */
+const RATIO_CSS: Record<PostRatio, string> = {
+  "1:1": "1 / 1",
+  "4:5": "4 / 5",
+  "9:16": "9 / 16",
+  "2:1": "2 / 1",
+  "16:9": "16 / 9",
 };
 
-const gridCls: Record<Aspect, string> = {
-  "9:16": "grid-cols-2 sm:grid-cols-3",
-  "1:1": "grid-cols-2 sm:grid-cols-3",
-  "16:9": "grid-cols-1 sm:grid-cols-2",
-};
-
-export function ImageGallery({
-  images,
-  aspect,
-}: {
-  images: PostImage[];
-  aspect: Aspect;
-}) {
+export function ImageGallery({ images }: { images: PostImage[] }) {
   if (images.length === 0) return null;
 
   // Tải lần lượt từng ảnh PNG (KHÔNG nén zip).
@@ -48,24 +40,29 @@ export function ImageGallery({
         <button
           type="button"
           onClick={downloadAll}
-          className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500"
+          className="rounded-xl bg-emerald-600 px-4 py-2 text-base font-semibold hover:bg-emerald-500"
         >
           ⬇ Tải tất cả (PNG)
         </button>
       </div>
-      <div className={`grid gap-3 ${gridCls[aspect]}`}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {images.map((img, i) => (
           <a
             key={i}
             href={img.url}
             download
             title={img.headline || `Ảnh ${i + 1}`}
-            className="group relative overflow-hidden rounded-lg border border-zinc-700"
+            className="group relative overflow-hidden rounded-lg border border-zinc-700 self-start"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.url} alt={img.headline || `Ảnh ${i + 1}`} className={`w-full object-cover ${aspectCls[aspect]}`} />
-            <span className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1 text-center text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100">
-              Tải ảnh {i + 1}
+            <img
+              src={img.url}
+              alt={img.headline || `Ảnh ${i + 1}`}
+              style={{ aspectRatio: RATIO_CSS[img.ratio ?? "4:5"] }}
+              className="w-full object-cover"
+            />
+            <span className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1 text-center text-base text-white opacity-0 transition-opacity group-hover:opacity-100">
+              {img.ratio ?? ""} · Tải ảnh {i + 1}
             </span>
           </a>
         ))}

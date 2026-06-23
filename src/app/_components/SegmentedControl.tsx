@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useId } from "react";
+import { motion } from "framer-motion";
 
 export interface SegOption<T extends string> {
   value: T;
-  label: string;
+  label: React.ReactNode;
   hint?: string;
   icon?: React.ReactNode;
 }
@@ -28,8 +29,10 @@ export function SegmentedControl<T extends string>({
 }: Props<T>) {
   const activeCls =
     accent === "orange"
-      ? "border-orange-500 bg-orange-600/20 text-orange-300"
-      : "border-indigo-500 bg-indigo-600/20 text-indigo-300";
+      ? "bg-hot/15 border-hot/40 shadow-[0_0_15px_rgba(250,163,9,0.3)] backdrop-blur-lg"
+      : "bg-blue-500/15 border-blue-500/40 shadow-[0_0_15px_rgba(59,130,246,0.3)] backdrop-blur-lg";
+
+  const layoutId = useId();
 
   function onKey(e: React.KeyboardEvent, idx: number) {
     if (disabled) return;
@@ -44,8 +47,8 @@ export function SegmentedControl<T extends string>({
 
   return (
     <div className="flex flex-col gap-1.5">
-      {label && <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</span>}
-      <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
+      {label && <span className="text-base font-mono uppercase tracking-wide text-[#6b7c96] px-0.5">{label}</span>}
+      <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1 relative bg-black/20 p-1 rounded-xl border border-white/10 backdrop-blur-md shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
         {options.map((o, i) => {
           const active = o.value === value;
           return (
@@ -58,15 +61,23 @@ export function SegmentedControl<T extends string>({
               disabled={disabled}
               onClick={() => onChange(o.value)}
               onKeyDown={(e) => onKey(e, i)}
-              className={`flex-1 min-w-[100px] rounded-xl border px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                active ? activeCls : "border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-zinc-500"
+              className={`relative flex-1 z-10 flex flex-col items-center justify-center min-w-[80px] rounded-lg px-2 py-2 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                active ? (accent === "orange" ? "text-hot" : "text-blue-400") : "text-zinc-400 hover:text-white"
               }`}
             >
-              <span className="flex items-center justify-center gap-1.5">
+              {active && (
+                <motion.div
+                  layoutId={layoutId}
+                  className={`absolute inset-0 z-[-1] rounded-lg border ${activeCls}`}
+                  initial={false}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="flex items-center justify-center gap-1.5 z-10">
                 {o.icon}
                 {o.label}
               </span>
-              {o.hint && <span className="mt-0.5 block text-xs font-normal opacity-70">{o.hint}</span>}
+              {o.hint && <span className="mt-0.5 block text-base font-normal opacity-70 z-10">{o.hint}</span>}
             </button>
           );
         })}

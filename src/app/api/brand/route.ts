@@ -16,6 +16,7 @@ export interface BrandPalette {
 export interface BrandData {
   logoUrl: string;
   palette: BrandPalette;
+  extractedColors?: string[];
 }
 
 function hexFromRgb(rgb: number[] | undefined): string | null {
@@ -45,6 +46,28 @@ export async function POST(request: Request) {
 
     const palette = await Vibrant.from(filePath).getPalette();
 
+    const swatches = [
+      palette.Vibrant,
+      palette.LightVibrant,
+      palette.DarkVibrant,
+      palette.Muted,
+      palette.LightMuted,
+      palette.DarkMuted,
+    ];
+    
+    // Extract non-null colors and deduplicate
+    const extractedColors = Array.from(new Set(
+      swatches
+        .map(s => hexFromRgb(s?.rgb))
+        .filter((hex): hex is string => hex !== null)
+    )).slice(0, 6);
+
+    // If not enough colors, fallback with some defaults to ensure we have 6 options if possible
+    const fallbacks = ["#ff5a1f", "#2fe6d6", "#ff8a3d", "#06080c", "#eef2f6", "#f59e0b"];
+    while (extractedColors.length < 6) {
+      extractedColors.push(fallbacks[extractedColors.length]);
+    }
+
     const brand: BrandData = {
       logoUrl,
       palette: {
@@ -54,6 +77,7 @@ export async function POST(request: Request) {
         bg: hexFromRgb(palette.DarkMuted?.rgb) ?? "#06080c",
         text: hexFromRgb(palette.LightMuted?.rgb) ?? "#eef2f6",
       },
+      extractedColors,
     };
 
     fs.writeFileSync(BRAND_JSON, JSON.stringify(brand, null, 2), "utf-8");

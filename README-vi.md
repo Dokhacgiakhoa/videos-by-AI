@@ -1,7 +1,8 @@
-<div align="center">
-  <p>[🇬🇧 Read in English](README.md)</p>
+👉 **[Tiếng Anh ở đây (English here)](README.md)**
+
+<p align="center">
   <img src="public/AI91.jpg" alt="AI91 Logo" width="200" style="border-radius: 20px;" />
-</div>
+</p>
 
 # AI91 Medimation - Tự Động Hoá Sản Xuất Media
 

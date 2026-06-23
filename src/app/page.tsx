@@ -263,7 +263,7 @@ export default function Home() {
       </div>
 
       {/* Main Container */}
-      <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 md:px-6 relative" style={{ zIndex: 1 }}>
+      <main className="mx-auto flex w-[80%] max-w-[80vw] flex-col gap-5 py-8 relative" style={{ zIndex: 1 }}>
         
         {/* Navigation Header */}
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5 mb-2">

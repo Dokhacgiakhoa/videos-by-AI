@@ -1,50 +1,51 @@
-# AI91 Medimation — Phần mềm Sản xuất Video Tự động AI
+# AI91 Medimation
+
+<p align="center">
+  <img src="public/AI91.jpg" alt="AI91 Logo" width="200" />
+</p>
+
+**Phần mềm Sản xuất Video & Ảnh Tự động** bởi **AI91 / Dokhacgiakhoa**
 
 Pipeline chạy **local (localhost)** biến một prompt thành:
-- **Video thuyết trình (Card Motion):** lời thoại + phụ đề karaoke đồng bộ từng từ + 15 layout đồ họa động (Remotion + GSAP), xuất MP4 1080p @30fps.
-- **Bộ ảnh mạng xã hội (Image Post):** các slide tĩnh dàn trang tự động, xuất JPEG/PNG đóng gói `.zip`.
+- **Video thuyết trình (Card Motion):** lời thoại + phụ đề karaoke + 15 layout đồ họa động (Remotion + GSAP), xuất MP4 1080p @30fps.
+- **Bộ ảnh mạng xã hội (Image Post):** slide tĩnh dàn trang tự động, xuất PNG riêng lẻ.
 
-> Tài liệu đặc tả đầy đủ: xem [`docs/`](docs/) (bộ SRS) và [`docs/SETUP-LOCAL.md`](docs/SETUP-LOCAL.md).
+> Tài liệu đặc tả: [`docs/`](docs/) (bộ SRS) | [`docs/SETUP-LOCAL.md`](docs/SETUP-LOCAL.md) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md)
 
 ## Công nghệ
 
 | Lớp | Thành phần |
 | :-- | :-- |
 | Web/Dashboard | Next.js (App Router) + Tailwind + TypeScript |
-| LLM | Ollama (`qwen2.5:7b`, local) hoặc Gemini (`gemini-2.5-flash`) — chọn qua `AI_PROVIDER` |
-| Giọng đọc (TTS) | Edge-TTS (local qua Python, có word-timestamp) |
+| LLM | Ollama (`qwen2.5:7b`, local) hoặc Gemini (`gemini-2.5-flash`) |
+| Giọng đọc (TTS) | Edge-TTS (local qua Python, word-timestamp tích hợp) |
 | Đồ họa & Render | Remotion (React) + Headless Chromium, GSAP, Framer Motion |
-| Ghép & Đóng gói | FFmpeg (video + audio ducking), ZIP (ảnh post) |
-| Sinh ảnh | Pollinations (Flux, mặc định) / Google Imagen / ComfyUI local — qua `IMAGE_PROVIDER` |
-
-## Yêu cầu
-
-- Node.js + npm, FFmpeg
-- Python + `pip install edge-tts`
-- (Tùy chọn) Ollama + model `qwen2.5:7b`; ComfyUI + Flux để sinh ảnh local
-- (Tùy chọn) `GEMINI_API_KEY` nếu dùng Gemini
-
-Chi tiết: [`docs/SETUP-LOCAL.md`](docs/SETUP-LOCAL.md).
+| Ghép video | FFmpeg (audio ducking) |
+| Sinh ảnh | Pollinations (Flux) / Google Imagen / ComfyUI local |
 
 ## Cài & chạy
 
 ```bash
-npm install          # lần đầu
-cp .env.example .env.local   # rồi điền cấu hình
-npm run dev          # http://localhost:3000
+npm install
+cp .env.example .env.local   # điền cấu hình
+npm run dev                   # http://localhost:3000
 ```
 
-Hoặc trên Windows: chạy [`start.bat`](start.bat) (tự cap GPU 200W, cài deps, mở trình duyệt).
-
-## Cấu trúc thư mục
-
-Xem [`docs/STRUCTURE.md`](docs/STRUCTURE.md) để biết sơ đồ thư mục có chú thích.
+Windows: chạy [`start.bat`](start.bat) (cap GPU 200W, cài deps, mở trình duyệt).
 
 ## Scripts
 
 | Lệnh | Tác dụng |
 | :-- | :-- |
-| `npm run dev` | Chạy dev server |
+| `npm run dev` | Dev server |
 | `npm run build` | Build production |
 | `npm run start` | Chạy bản build |
 | `npm run lint` | ESLint |
+
+---
+
+## Bản quyền
+
+Copyright (c) 2024-2026 **AI91** / **Dokhacgiakhoa** (dokhacgiakhoa666@gmail.com)
+
+Dự án được phát hành theo giấy phép [MIT](LICENSE).

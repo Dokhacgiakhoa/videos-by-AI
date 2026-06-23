@@ -1,0 +1,257 @@
+{
+  "title": "AI91 Medimation — Giới thiệu tính năng",
+  "scenes": [
+    {
+      "voiceOver": "Chào mừng bạn đến với AI91 Medimation — phần mềm sản xuất video và ảnh tự động hoàn toàn bằng trí tuệ nhân tạo.",
+      "card": {
+        "layoutType": "outro",
+        "name": "AI91", "badges": [], "tag": "", "stat": "", "statSuffix": "", "lab1": "", "lab2": "", "cmd": "", "star": "",
+        "outroSlogan": "Video & Image Automation",
+        "outroContact": "ai91.dev"
+      }
+    },
+    {
+      "voiceOver": "AI91 Medimation biến một prompt đơn giản thành video chuyên nghiệp hoặc bộ ảnh đăng mạng xã hội — chỉ trong vài phút.",
+      "card": {
+        "layoutType": "title",
+        "name": "AI91", "badges": ["AI", "Video", "Image"], "tag": "Prompt → Video + Ảnh", "stat": "1", "statSuffix": "click", "lab1": "tự", "lab2": "động", "cmd": "npm run dev", "star": "AI91",
+        "titleMain": "Prompt → Video & Ảnh",
+        "titleSub": "Tự động hoàn toàn, chỉ 1 click"
+      }
+    },
+    {
+      "voiceOver": "Hệ thống hỗ trợ 15 bố cục đồ họa động được thiết kế 100% bằng HTML, CSS và GSAP — không dùng ảnh nền tĩnh.",
+      "card": {
+        "layoutType": "stats-grid",
+        "name": "Layouts", "badges": ["CSS", "GSAP", "HTML"], "tag": "15 layout động", "stat": "15", "statSuffix": "layouts", "lab1": "100%", "lab2": "code", "cmd": "LayoutComponents.tsx", "star": "15",
+        "sgTitle": "Hệ sinh thái Layout",
+        "sgStats": [
+          {"val": 15, "suffix": "+", "label": "Bố cục"},
+          {"val": 100, "suffix": "%", "label": "CSS/HTML"},
+          {"val": 30, "suffix": "fps", "label": "Render"},
+          {"val": 0, "suffix": "", "label": "Ảnh nền tĩnh"}
+        ]
+      }
+    },
+    {
+      "voiceOver": "Card layout là bố cục mặc định — hiển thị thẻ công nghệ với badge, chỉ số nổi bật, terminal command và star count.",
+      "card": {
+        "layoutType": "card",
+        "name": "REMOTION",
+        "label": "ai91.medimation · engine",
+        "pillDay": "CORE ENGINE",
+        "badges": ["React", "TypeScript", "30fps"],
+        "tag": "Render video chất lượng cao bằng <em>React components</em> — frame-by-frame qua Chromium.",
+        "stat": "30",
+        "statSuffix": "fps",
+        "lab1": "HD",
+        "lab2": "1080p",
+        "cmd": "npx remotion render",
+        "star": "4.0K"
+      }
+    },
+    {
+      "voiceOver": "Giọng đọc được tạo hoàn toàn miễn phí bằng Edge TTS với timestamp chính xác đến từng từ — đồng bộ hoàn hảo với phụ đề karaoke.",
+      "card": {
+        "layoutType": "cream",
+        "name": "Edge-TTS", "badges": ["Python", "Free"], "tag": "Giọng Việt chuẩn", "stat": "0", "statSuffix": "đ", "lab1": "miễn", "lab2": "phí", "cmd": "edge-tts", "star": "Free",
+        "creamTitle": "Giọng đọc Edge-TTS",
+        "progressLabel": "Độ chính xác timestamp",
+        "progressPct": 98,
+        "chatUser": "Tạo giọng đọc cho 20 cảnh",
+        "chatBot": "Đã sinh audio + word timestamps cho tất cả 20 cảnh. Tổng thời lượng ~90 giây.",
+        "creamSub": "Hỗ trợ giọng nam & nữ miền Bắc"
+      }
+    },
+    {
+      "voiceOver": "Kịch bản video được sinh tự động bởi LLM — hỗ trợ cả Ollama chạy local offline lẫn Gemini cloud siêu nhanh.",
+      "card": {
+        "layoutType": "manim",
+        "name": "LLM Engine", "badges": ["Ollama", "Gemini"], "tag": "Sinh kịch bản AI", "stat": "2", "statSuffix": "LLM", "lab1": "local", "lab2": "cloud", "cmd": "ollama run qwen2.5:7b", "star": "AI",
+        "manimHeader": "LLM Engine",
+        "manimTitle": "Ollama ↔ Gemini",
+        "mapLeft1": "prompt",
+        "mapRight1": "kịch bản JSON",
+        "mapLeft2": "AI_PROVIDER",
+        "mapRight2": "google | local",
+        "manimSub": "Chọn provider qua biến môi trường"
+      }
+    },
+    {
+      "voiceOver": "Hệ thống hỗ trợ 3 tỉ lệ khung hình chuẩn — dọc cho TikTok, vuông cho Instagram, và ngang cho YouTube.",
+      "card": {
+        "layoutType": "list",
+        "name": "Tỉ lệ", "badges": ["9:16", "1:1", "16:9"], "tag": "3 aspect ratio", "stat": "3", "statSuffix": "tỉ lệ", "lab1": "đa", "lab2": "nền tảng", "cmd": "aspect.ts", "star": "3",
+        "listTitle": "Tỉ lệ khung hình",
+        "listItems": ["9:16 — TikTok, Reels, YouTube Shorts (1080×1920)", "1:1 — Facebook Post, Instagram (1080×1080)", "16:9 — YouTube Landscape (1920×1080)"]
+      }
+    },
+    {
+      "voiceOver": "Ảnh AI được sinh tự động qua nhiều provider — Pollinations miễn phí, Google Imagen chất lượng cao, hoặc ComfyUI chạy trên GPU local.",
+      "card": {
+        "layoutType": "text-image",
+        "name": "Sinh ảnh AI", "badges": ["Flux", "Imagen", "ComfyUI"], "tag": "Đa provider ảnh AI", "stat": "3", "statSuffix": "nguồn", "lab1": "free", "lab2": "paid", "cmd": "IMAGE_PROVIDER=pollinations", "star": "AI",
+        "tiTitle": "Sinh ảnh AI đa nguồn",
+        "tiText": "Pollinations (Flux, miễn phí) • Google Imagen • ComfyUI + Flux local (GPU)",
+        "tiImageMock": "sphere"
+      }
+    },
+    {
+      "voiceOver": "FFmpeg ghép video hoàn chỉnh với Audio Ducking thông minh — tự giảm nhạc nền khi có giọng đọc, tăng lại khi im lặng.",
+      "card": {
+        "layoutType": "text-video",
+        "name": "FFmpeg", "badges": ["Audio", "Ducking"], "tag": "Ghép video chuyên nghiệp", "stat": "100", "statSuffix": "%", "lab1": "tự", "lab2": "động", "cmd": "ffmpeg -y", "star": "Pro",
+        "tvTitle": "Audio Ducking thông minh",
+        "tvText": "Nhạc nền tự giảm volume khi có giọng đọc — tăng lại khi im lặng",
+        "tvVideoMock": "pulse"
+      }
+    },
+    {
+      "voiceOver": "Biểu đồ được tạo hoàn toàn bằng CSS Grid và GSAP — thanh bar tự scale mượt mà từ 0 lên giá trị thực, không cần thư viện chart ngoài.",
+      "card": {
+        "layoutType": "chart",
+        "name": "Chart Layout", "badges": ["CSS Grid", "GSAP"], "tag": "Biểu đồ động", "stat": "0", "statSuffix": "lib", "lab1": "zero", "lab2": "deps", "cmd": "chart-bar", "star": "CSS",
+        "chartTitle": "Hiệu năng Pipeline",
+        "chartSub": "Thời gian render trung bình (giây)",
+        "chartData": [
+          {"label": "Kịch bản", "value": 5},
+          {"label": "TTS", "value": 15},
+          {"label": "Remotion", "value": 45},
+          {"label": "FFmpeg", "value": 10},
+          {"label": "Tổng", "value": 75}
+        ]
+      }
+    },
+    {
+      "voiceOver": "Bento Box layout chia thông tin thành các ô vuông đều — phù hợp hiển thị nhiều tính năng song song, dễ đọc.",
+      "card": {
+        "layoutType": "bento",
+        "name": "Bento", "badges": ["Grid", "Layout"], "tag": "Bento Box", "stat": "4", "statSuffix": "ô", "lab1": "gọn", "lab2": "gàng", "cmd": "bento-item", "star": "UI",
+        "bentoTitle": "Tính năng nổi bật",
+        "bentoItems": [
+          {"title": "15 Layout", "desc": "Đa dạng, không lặp lại"},
+          {"title": "Karaoke Sub", "desc": "Phụ đề đồng bộ từng từ"},
+          {"title": "3 Tỉ lệ", "desc": "TikTok, IG, YouTube"},
+          {"title": "1-Click", "desc": "Chạy start.bat là xong"}
+        ]
+      }
+    },
+    {
+      "voiceOver": "Layout 3D Isometric tạo hiệu ứng phân tầng đẹp mắt — các lớp thông tin xếp chồng với perspective CSS tạo chiều sâu.",
+      "card": {
+        "layoutType": "split-3d",
+        "name": "3D Iso", "badges": ["CSS", "Perspective"], "tag": "3D Isometric", "stat": "3", "statSuffix": "lớp", "lab1": "chiều", "lab2": "sâu", "cmd": "perspective: 1000px", "star": "3D",
+        "s3dTitle": "Kiến trúc Pipeline",
+        "s3dLayers": ["Frontend (Next.js)", "Backend (Pipeline)", "Engine (Remotion)"]
+      }
+    },
+    {
+      "voiceOver": "Quote layout hiển thị câu trích dẫn nổi bật — phù hợp cho các phân cảnh nhấn mạnh thông điệp chính của video.",
+      "card": {
+        "layoutType": "quote",
+        "name": "Quote", "badges": ["Typography"], "tag": "Trích dẫn", "stat": "1", "statSuffix": "msg", "lab1": "nhấn", "lab2": "mạnh", "cmd": "quote-text", "star": "Q",
+        "quoteText": "Biến ý tưởng thành video chuyên nghiệp — chỉ bằng một dòng prompt.",
+        "quoteAuthor": "AI91 Medimation"
+      }
+    },
+    {
+      "voiceOver": "Timeline layout trình bày lộ trình phát triển dự án — từ giai đoạn đo đạc ban đầu đến hoàn thiện 15 template layout.",
+      "card": {
+        "layoutType": "timeline",
+        "name": "Roadmap", "badges": ["Phase", "Plan"], "tag": "Lộ trình phát triển", "stat": "6", "statSuffix": "phase", "lab1": "từ 0", "lab2": "đến 1", "cmd": "roadmap", "star": "6P",
+        "tlTitle": "Lộ trình AI91 Medimation",
+        "tlNodes": [
+          {"year": "P1", "event": "Kích thước & WPM"},
+          {"year": "P2", "event": "Sinh ảnh đa tỉ lệ"},
+          {"year": "P3", "event": "Dashboard UI"},
+          {"year": "P4", "event": "Video + Ảnh Post"},
+          {"year": "P5", "event": "15 Layout động"},
+          {"year": "P6", "event": "Đóng gói 1-click"}
+        ]
+      }
+    },
+    {
+      "voiceOver": "Code Snippet layout hiển thị mã nguồn với hiệu ứng đánh máy — phù hợp cho video hướng dẫn lập trình, giới thiệu API.",
+      "card": {
+        "layoutType": "code-snippet",
+        "name": "Code", "badges": ["TypeScript", "API"], "tag": "Code Snippet", "stat": "1", "statSuffix": "file", "lab1": "code", "lab2": "review", "cmd": "tsc", "star": "TS",
+        "csTitle": "Pipeline Entry Point",
+        "csCode": "const res = await fetch('/api/generate', {\n  method: 'POST',\n  body: JSON.stringify({\n    topic: 'AI automation',\n    type: 'video',\n    aspectRatio: '9:16'\n  })\n});"
+      }
+    },
+    {
+      "voiceOver": "Tính năng xem trước kịch bản cho phép bạn duyệt và chỉnh sửa nội dung trước khi render — tiết kiệm hàng chục phút chờ đợi.",
+      "card": {
+        "layoutType": "card",
+        "name": "PREVIEW",
+        "label": "ai91.pipeline · preview",
+        "pillDay": "FAST DRAFT",
+        "badges": ["Script", "JSON", "Edit"],
+        "tag": "Sinh kịch bản nhanh qua <em>/api/script</em> — duyệt & sửa trước khi render.",
+        "stat": "30",
+        "statSuffix": "x",
+        "lab1": "nhanh",
+        "lab2": "hơn",
+        "cmd": "POST /api/script",
+        "star": "Preview"
+      }
+    },
+    {
+      "voiceOver": "Hệ thống chống lỗi với retry thông minh cho Gemini và Imagen — tự thử lại khi gặp lỗi mạng hoặc quá tải server.",
+      "card": {
+        "layoutType": "card",
+        "name": "RETRY",
+        "label": "ai91.pipeline · http",
+        "pillDay": "STABILITY",
+        "badges": ["429", "500", "Backoff"],
+        "tag": "Retry thông minh: fail-fast khi sai key, <em>backoff lũy thừa</em> khi server quá tải.",
+        "stat": "3",
+        "statSuffix": "lần",
+        "lab1": "auto",
+        "lab2": "retry",
+        "cmd": "fetchWithRetry(url, init)",
+        "star": "Stable"
+      }
+    },
+    {
+      "voiceOver": "Bạn có thể hủy job đang chạy bất kỳ lúc nào — hệ thống sẽ dừng ngay Remotion, FFmpeg và Edge TTS, giải phóng tài nguyên.",
+      "card": {
+        "layoutType": "card",
+        "name": "CANCEL",
+        "label": "ai91.pipeline · abort",
+        "pillDay": "CONTROL",
+        "badges": ["AbortSignal", "Kill"],
+        "tag": "Hủy job giữa chừng: <em>AbortController</em> xuyên suốt pipeline, nút ✕ trên UI.",
+        "stat": "1",
+        "statSuffix": "click",
+        "lab1": "hủy",
+        "lab2": "ngay",
+        "cmd": "controller.abort()",
+        "star": "Safe"
+      }
+    },
+    {
+      "voiceOver": "Tổng kết: AI91 Medimation cung cấp pipeline hoàn chỉnh từ prompt đến video và ảnh — 15 layout, 3 tỉ lệ, 100% chạy local, hoàn toàn miễn phí.",
+      "card": {
+        "layoutType": "stats-grid",
+        "name": "Summary", "badges": ["AI91"], "tag": "Tổng kết", "stat": "∞", "statSuffix": "", "lab1": "free", "lab2": "local", "cmd": "start.bat", "star": "AI91",
+        "sgTitle": "AI91 Medimation",
+        "sgStats": [
+          {"val": 15, "suffix": "+", "label": "Layout động"},
+          {"val": 3, "suffix": "", "label": "Tỉ lệ khung"},
+          {"val": 100, "suffix": "%", "label": "Local/Free"},
+          {"val": 1, "suffix": "click", "label": "Khởi động"}
+        ]
+      }
+    },
+    {
+      "voiceOver": "Cảm ơn bạn đã xem! Truy cập github AI91 hoặc chạy start.bat để trải nghiệm ngay AI91 Medimation trên máy của bạn.",
+      "card": {
+        "layoutType": "outro",
+        "name": "AI91", "badges": [], "tag": "", "stat": "", "statSuffix": "", "lab1": "", "lab2": "", "cmd": "", "star": "",
+        "outroSlogan": "Prompt → Video, in minutes.",
+        "outroContact": "github.com/Dokhacgiakhoa"
+      }
+    }
+  ]
+}

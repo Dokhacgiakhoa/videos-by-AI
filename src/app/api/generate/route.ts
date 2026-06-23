@@ -44,12 +44,14 @@ export async function POST(request: Request) {
   let voice = "vi-VN-HoaiMyNeural";
   let rate = "+0%";
   let useMusic = false;
+  let preset = "";
   let cardScript: PipelineOptions["cardScript"];
   let imagePostScript: PipelineOptions["imagePostScript"];
 
   try {
     const body = await request.json();
     useMusic = Boolean(body?.music);
+    preset = (body?.preset ?? "").toString().trim();
     if (body?.cardScript && typeof body.cardScript === "object") cardScript = body.cardScript;
     if (body?.imagePostScript && typeof body.imagePostScript === "object") imagePostScript = body.imagePostScript;
     topic = (body?.topic ?? "").toString().trim();
@@ -67,14 +69,14 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: "Body JSON không hợp lệ" }), { status: 400 });
   }
 
-  if (!topic) {
-    return new Response(JSON.stringify({ error: "Thiếu 'topic'" }), { status: 400 });
+  if (!topic && !preset) {
+    return new Response(JSON.stringify({ error: "Thiếu 'topic' hoặc 'preset'" }), { status: 400 });
   }
   if (topic.length > 2000) {
     return new Response(JSON.stringify({ error: "Chủ đề quá dài (tối đa 2000 ký tự)" }), { status: 400 });
   }
-  // Cả 2 sản phẩm dùng Gemini -> bắt buộc key (không tin FE, chặn ở server)
-  if (!geminiKey && !process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+  // Preset có kịch bản sẵn → không cần Gemini key; còn lại bắt buộc key
+  if (!preset && !geminiKey && !process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
     return new Response(JSON.stringify({ error: "Cần Gemini API key (nhập trên giao diện)." }), { status: 400 });
   }
 
@@ -98,6 +100,7 @@ export async function POST(request: Request) {
     imagePostScript,
     bgMusic: useMusic ? resolveBgMusic() : undefined,
     signal: request.signal,
+    preset: preset || undefined,
   };
 
   const encoder = new TextEncoder();

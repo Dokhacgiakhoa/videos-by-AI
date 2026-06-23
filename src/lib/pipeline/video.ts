@@ -34,6 +34,13 @@ const makeImage = (prompt: string, filename: string, ar: AspectRatio): Promise<s
   return pollinationsGenerateImage(prompt, filename, dims);
 };
 
+/** Load kịch bản preset có sẵn (vd "demo-ai91") từ public/presets/<name>.json */
+function loadPresetScript(name: string): CardScript {
+  const filePath = path.join(process.cwd(), "public", "presets", `${name}.json`);
+  const raw = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  return raw as CardScript;
+}
+
 export interface PipelineOptions {
   useNews?: boolean;
   newsQuery?: string;
@@ -47,6 +54,7 @@ export interface PipelineOptions {
   imagePostScript?: ImagePostScript; // nội dung ảnh đã duyệt
   bgMusic?: string; // đường dẫn public nhạc nền (vd /assets/music/x.mp3)
   signal?: AbortSignal; // tín hiệu hủy job (client ngắt / bấm "Hủy")
+  preset?: string; // tên preset (vd "demo-ai91") — load kịch bản từ public/presets/
 }
 
 export type ProgressEvent =
@@ -164,7 +172,10 @@ export async function runCardPipeline(
 
   try {
     let cardScript: CardScript;
-    if (opts.cardScript) {
+    if (opts.preset) {
+      cardScript = loadPresetScript(opts.preset);
+      emit({ type: "status", message: `Dùng preset "${opts.preset}": "${cardScript.title}" — ${cardScript.scenes.length} thẻ.` });
+    } else if (opts.cardScript) {
       cardScript = opts.cardScript;
       emit({ type: "status", message: `Dùng kịch bản đã duyệt: "${cardScript.title}" — ${cardScript.scenes.length} thẻ.` });
     } else {

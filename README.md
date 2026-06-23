@@ -39,26 +39,23 @@ Dự án này là sự kết hợp của những công nghệ hàng đầu:
 ## 🚀 Hướng Dẫn Cài Đặt (Installation Guide)
 
 ### 1. Yêu Cầu Hệ Thống (Prerequisites)
-Bạn cần cài đặt các phần mềm sau trước khi bắt đầu:
-- **Node.js:** Phiên bản 20+ (Khuyên dùng v24+).
-- **Python:** Phiên bản 3.10+ (Đã thêm vào biến môi trường PATH).
-- **FFmpeg:** Tải và thêm vào PATH (Bắt buộc để ghép nhạc và render MP4).
-- **Git:** Để clone dự án.
+Dự án này được thiết kế theo xu hướng **AI-First**. Bạn KHÔNG CẦN phải tự cài đặt thủ công Node.js, Python hay FFmpeg một cách mệt mỏi.
 
-### 2. Tải & Cài Đặt Mã Nguồn
-Mở Terminal / Command Prompt và chạy lần lượt các lệnh sau:
+Thứ duy nhất bạn cần là một **Trợ lý AI lập trình** (AI Agent) như:
+- **Antigravity** (Google)
+- **Claude Code** (Anthropic)
+- **Cursor** / **Codex**
 
-```bash
-# Clone dự án về máy
-git clone https://github.com/Dokhacgiakhoa/videos-by-ai.git
-cd videos-by-ai
-
-# Cài đặt các thư viện Node.js
-npm install
-
-# Cài đặt thư viện Python (Dùng cho Edge-TTS)
-pip install edge-tts
-```
+### 2. Cài Đặt Siêu Tốc Bằng AI
+1. Clone dự án về máy:
+   ```bash
+   git clone https://github.com/Dokhacgiakhoa/videos-by-ai.git
+   cd videos-by-ai
+   ```
+2. Mở thư mục dự án trong IDE hoặc Terminal có tích hợp AI.
+3. **Chat với AI câu lệnh sau:**
+   > *"Hãy phân tích dự án này và cài đặt toàn bộ môi trường cần thiết (Node.js, Python, FFmpeg, npm install, pip install edge-tts) để chạy nó hộ tôi."*
+4. Ngồi nhâm nhi cà phê ☕ và để AI tự động cấu hình toàn bộ hệ thống cho bạn.
 
 ### 3. Cấu Hình Biến Môi Trường (.env)
 Dự án cần một số cấu hình cơ bản để kết nối với AI.

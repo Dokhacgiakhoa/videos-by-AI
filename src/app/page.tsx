@@ -442,9 +442,20 @@ export default function Home() {
                   {running ? "Đang xử lý..." : preview ? "Soạn kịch bản →" : isVideo ? "Bắt đầu tạo Video" : "Bắt đầu tạo bộ ảnh"}
                 </button>
                 <button
-                  onClick={() => generate({ preset: "demo-ai91" })}
+                  onClick={async () => {
+                    if (preview) {
+                      const res = await fetch("/presets/demo-ai91.json");
+                      const script = await res.json();
+                      setDraftCard(script);
+                      setDraftImage(null);
+                      setShowEditor(true);
+                      pushLog("Kịch bản Demo sẵn sàng — xem/sửa rồi bấm Render.");
+                    } else {
+                      generate({ preset: "demo-ai91" });
+                    }
+                  }}
                   disabled={running}
-                  title="Tạo video giới thiệu AI91 Medimation với kịch bản có sẵn (~20 cảnh). Không cần nhập topic hay Gemini key."
+                  title={preview ? "Xem trước kịch bản Demo (~20 cảnh) rồi chỉnh sửa trước khi render." : "Render thẳng video Demo AI91 (~20 cảnh). Không cần topic hay Gemini key."}
                   className="rounded-xl border border-cy/40 bg-cy/10 hover:bg-cy/20 px-4 py-3 text-sm font-display font-bold text-cy transition-all disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer whitespace-nowrap"
                 >
                   🎬 Demo

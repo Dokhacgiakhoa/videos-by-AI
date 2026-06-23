@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Storyboard, StoryboardSchema } from "../types";
 import { imagenAspectLabel, durationPlan, type AspectRatio, type DurationPlan } from "./aspect";
+import { fetchWithRetry } from "./http";
 
 /**
  * Tích hợp Google Gemini API (chạy CLOUD, KHÔNG dùng GPU local — an toàn cho máy đang yếu nguồn).
@@ -57,18 +58,18 @@ Yêu cầu:
 Trả về JSON đúng cấu trúc:
 {"title":"...","topic":"...","scenes":[{"id":"scene_1","voiceOver":"...","imagePrompt":"...","durationInSeconds":7}],"totalEstimatedDuration":35}`;
 
-  const res = await fetch(`${BASE}/models/${model}:generateContent?key=${apiKey()}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Gemini text lỗi ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`);
-  }
+  const res = await fetchWithRetry(
+    `${BASE}/models/${model}:generateContent?key=${apiKey()}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
+      }),
+    },
+    { label: "Gemini text" },
+  );
 
   const data = await res.json();
   const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -101,41 +102,43 @@ export async function googleGenerateImage(
   let base64: string | undefined;
 
   if (model.startsWith("imagen")) {
-    const res = await fetch(`${BASE}/models/${model}:predict?key=${key}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        instances: [{ prompt }],
-        parameters: { sampleCount: 1, aspectRatio: imagenAspectLabel(ar) },
-      }),
-    });
-    if (!res.ok) {
-      throw new Error(`Imagen lỗi ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`);
-    }
+    const res = await fetchWithRetry(
+      `${BASE}/models/${model}:predict?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          instances: [{ prompt }],
+          parameters: { sampleCount: 1, aspectRatio: imagenAspectLabel(ar) },
+        }),
+      },
+      { label: "Imagen" },
+    );
     const data = await res.json();
     base64 = data?.predictions?.[0]?.bytesBase64Encoded;
   } else {
     // Gemini image generation (generateContent) — ảnh thường vuông, FFmpeg sẽ crop về 9:16
-    const res = await fetch(`${BASE}/models/${model}:generateContent?key=${key}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: `${prompt}. ${ar === "16:9" ? "Horizontal 16:9 widescreen" : ar === "1:1" ? "Square 1:1" : "Vertical 9:16"} composition.`,
-              },
-            ],
-          },
-        ],
-        generationConfig: { responseModalities: ["IMAGE"] },
-      }),
-    });
-    if (!res.ok) {
-      throw new Error(`Gemini image lỗi ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`);
-    }
+    const res = await fetchWithRetry(
+      `${BASE}/models/${model}:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `${prompt}. ${ar === "16:9" ? "Horizontal 16:9 widescreen" : ar === "1:1" ? "Square 1:1" : "Vertical 9:16"} composition.`,
+                },
+              ],
+            },
+          ],
+          generationConfig: { responseModalities: ["IMAGE"] },
+        }),
+      },
+      { label: "Gemini image" },
+    );
     const data = await res.json();
     const parts = data?.candidates?.[0]?.content?.parts ?? [];
     base64 = parts.find((p: { inlineData?: { data?: string } }) => p?.inlineData?.data)?.inlineData?.data;

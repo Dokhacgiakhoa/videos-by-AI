@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { durationPlan, type DurationPlan } from "./aspect";
+import { fetchWithRetry } from "./http";
 
 /**
  * Sinh nội dung video dạng "THẺ" (cho format motion-graphics AI91) bằng Gemini.
@@ -79,17 +80,18 @@ LƯU Ý: chỉ có voiceOver được DÀI; mọi CHỮ HIỂN THỊ trên card 
 Trả về JSON thuần đúng cấu trúc:
 {"title":"...","scenes":[{"voiceOver":"...","card":{"name":"FIRECRAWL","label":"aidev.repo · daily","pillDay":"REPO OF THE DAY","badges":["MIT","TypeScript","API"],"tag":"Crawl & cào mọi website thành <em>dữ liệu sạch cho LLM</em> — không cần sitemap.","stat":"96","statSuffix":"%","lab1":"phủ","lab2":"toàn web","cmd":"npx firecrawl-mcp","star":"12.3K"}}]}`;
 
-  const res = await fetch(`${BASE}/models/${model}:generateContent?key=${key}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
-    }),
-  });
-  if (!res.ok) {
-    throw new Error(`Gemini lỗi ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`);
-  }
+  const res = await fetchWithRetry(
+    `${BASE}/models/${model}:generateContent?key=${key}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.8, responseMimeType: "application/json" },
+      }),
+    },
+    { label: "Gemini (kịch bản thẻ)" },
+  );
   const data = await res.json();
   const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error("Gemini không trả về nội dung thẻ.");

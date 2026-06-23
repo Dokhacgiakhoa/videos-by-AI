@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { fetchWithRetry } from "./http";
 
 /**
  * Sinh nội dung BỘ ẢNH POST kiểu bài báo bằng Gemini.
@@ -52,17 +53,18 @@ Slide 1 là ảnh "bìa" tổng quan chủ đề (hook mạnh). Các slide sau m
 Trả về JSON thuần đúng cấu trúc:
 {"title":"...","slides":[{"headline":"...","subheadline":"...","imagePrompt":"...","source":"..."}]}`;
 
-  const res = await fetch(`${BASE}/models/${model}:generateContent?key=${key}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.85, responseMimeType: "application/json" },
-    }),
-  });
-  if (!res.ok) {
-    throw new Error(`Gemini lỗi ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`);
-  }
+  const res = await fetchWithRetry(
+    `${BASE}/models/${model}:generateContent?key=${key}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.85, responseMimeType: "application/json" },
+      }),
+    },
+    { label: "Gemini (nội dung ảnh post)" },
+  );
   const data = await res.json();
   const text: string | undefined = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error("Gemini không trả về nội dung ảnh post.");
